@@ -1,0 +1,11 @@
+{
+  "name": "localForage-observable",
+  "version": "1.1.0",
+  "dependencies": {
+    "then/promise": "5.0.0"
+  },
+  "scripts": [
+    "src/localforage-observable.js"
+  ],
+  "main": "src/localforage-observable.js"
+}
