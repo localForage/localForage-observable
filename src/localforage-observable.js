@@ -38,8 +38,7 @@
         'setItem'
     ];
 
-    function LocalForageObservable(options) {
-        this.options = options;
+    function LocalForageObservable() {
         this.subscribers = [];
     }
 
@@ -62,18 +61,27 @@
     };
 
     LocalForageObservable.prototype.subscribe = function (subscriptionObject) {
-        if (this.isSubscriptionObject(subscriptionObject)) {
-            this.subscribers.push(subscriptionObject);
-        } else if (arguments.length) {
-            this.subscribers.push({
+        if (!this.isSubscriptionObject(subscriptionObject) && arguments.length) {
+            subscriptionObject = {
                 next: typeof arguments[0] === 'function' ? arguments[0] : undefined,
                 error: typeof arguments[1] === 'function' ? arguments[1] : undefined,
                 complete: typeof arguments[2] === 'function' ? arguments[2] : undefined
-            });
+            };
+        }
+
+        if (this.isSubscriptionObject(subscriptionObject)) {
+            this.subscribers.push(subscriptionObject);
+
+            var that = this;
+            return {
+                unsubscribe: function() {
+                    that._unsubscribe(subscriptionObject);
+                }
+            };
         }
     };
 
-    LocalForageObservable.prototype.unsubscribe = function (subscriptionObject) {
+    LocalForageObservable.prototype._unsubscribe = function (subscriptionObject) {
         if (subscriptionObject) {
             var index = this.subscribers.indexOf(subscriptionObject);
             if (index >= 0) {
@@ -96,17 +104,17 @@
         }
     };
 
-    LocalForageObservable.prototype.destroy = function () {
-        for (var i = 0, subscriber; (subscriber = this.subscribers[i]); i++) {
-            if (typeof subscriber.complete === 'function') {
-                try {
-                    subscriber.complete();
-                } catch (e) { }
-            }
-        }
+    // LocalForageObservable.prototype.destroy = function () {
+    //     for (var i = 0, subscriber; (subscriber = this.subscribers[i]); i++) {
+    //         if (typeof subscriber.complete === 'function') {
+    //             try {
+    //                 subscriber.complete();
+    //             } catch (e) { }
+    //         }
+    //     }
 
-        this.subscribers.length = 0;
-    };
+    //     this.subscribers.length = 0;
+    // };
 
     // function LocalForageObservableOptions() { }
     // LocalForageObservableOptions.prototype.key = '';
@@ -114,8 +122,7 @@
     // LocalForageObservableOptions.prototype.removeItem = true;
     // LocalForageObservableOptions.prototype.clear = true;
 
-    function localforageObservable(options) {
-        var localforageInstance = this;
+    function setup(localforageInstance) {
         if (!localforageInstance._observables) {
             localforageInstance._observables = {
                 callDetection: [],
@@ -124,26 +131,61 @@
 
             wireUpMethods(localforageInstance);
         }
+    }
 
-        var observable = new LocalForageObservable(options);
-
-        var targetObservablesList = options && options.changeDetection === false ?
+    function extendObservable(localforageInstance, observable, options) {
+        observable.options = options;
+        // observable.localforageInstance = localforageInstance;
+        observable.localforageObservablesList = options && options.changeDetection === false ?
             localforageInstance._observables.callDetection :
             localforageInstance._observables.changeDetection;
-        
-        targetObservablesList.push(observable);
 
-        var baseDestroy = observable.destroy;
-        observable.destroy = function() {
-            baseDestroy.apply(observable, arguments);
-            var index = targetObservablesList.indexOf(observable);
-            if (index >= 0) {
-                return targetObservablesList.splice(index, 1);
+        var baseObservableSubscribe = observable.subscribe;
+        observable.subscribe = function() {
+            var subscription = baseObservableSubscribe.apply(this, arguments);
+            if (subscription) {
+                if (this.localforageObservablesList.indexOf(observable) < 0) {
+                    this.localforageObservablesList.push(observable);
+                }
+
+                var that = this;
+                var baseUnsubscribe = subscription.unsubscribe;
+                subscription.unsubscribe = function() {
+                    var index = that.localforageObservablesList.indexOf(observable);
+                    if (index >= 0) {
+                        return that.localforageObservablesList.splice(index, 1);
+                    }
+                };
             }
+
+            return subscription;
         };
+
+        // var baseDestroy = observable.destroy;
+        // observable.destroy = function() {
+        //     baseDestroy.apply(observable, arguments);
+        //     var index = targetObservablesList.indexOf(observable);
+        //     if (index >= 0) {
+        //         return targetObservablesList.splice(index, 1);
+        //     }
+        // };
+    }
+
+    function localforageObservable(options) {
+        var localforageInstance = this;
+        setup(localforageInstance);
+
+        var observable = localforageObservable.createNewObservable();
+        extendObservable(localforageInstance, observable, options);
 
         return observable;
     }
+
+    // In case the user want to override the used Observables
+    // eg: with RxJS or ES-Observable
+    localforageObservable.createNewObservable = function () {
+        return new LocalForageObservable();
+    };
 
     // function getItemKeyValue(key) {
     //     var localforageInstance = this;
@@ -161,6 +203,9 @@
     // LocalForageObservableChange.prototype.methodName = '';
     // LocalForageObservableChange.prototype.oldValue = null;
     // LocalForageObservableChange.prototype.newValue = null;
+    // LocalForageObservableChange.prototype.success = false;
+    // LocalForageObservableChange.prototype.fail = false;
+    // LocalForageObservableChange.prototype.error = '';
 
     function processObserverList(list, changeArgs) {
         for (var i = 0, observable; (observable = list[i]); i++) {
