@@ -6,6 +6,7 @@
   </head>
   <body>
     <script src="../bower_components/localforage/dist/localforage.js"></script>
+    <script src="../node_modules/zen-observable/zen-observable.js"></script>
     <script src="../src/localforage-observable.js"></script>
     <script>
       localforage.ready(function() {
@@ -28,6 +29,12 @@
           return localforage.setItem('test2', 'value2');
         }).then(function() {
           console.log('setItem(\'test2\', \'value2\')');
+          return localforage.setItem('test2', 'value2b');
+        }).then(function() {
+          console.log('setItem(\'test2\', \'value2b\')');
+          return localforage.setItem('test2', 'value2b');
+        }).then(function() {
+          console.log('setItem(\'test2\', \'value2b\')');
           return localforage.setItem('test3', 'value3');
         }).then(function() {
           console.log('setItem(\'test3\', \'value3\')');

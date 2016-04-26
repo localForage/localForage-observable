@@ -26,6 +26,20 @@
         moduleType = ModuleType.EXPORT;
     }
 
+    function getDriverPromise(localForageInstance, driverName) {
+        getDriverPromise.result = getDriverPromise.result || {};
+        if (getDriverPromise.result[driverName]) {
+            return getDriverPromise.result[driverName];
+        }
+        if (!localForageInstance || typeof localForageInstance.getDriver !== 'function') {
+            Promise.reject(new Error(
+                'localforage.getDriver() was not available! ' +
+                'localforage-cordovasqlitedriver requires localforage v1.4+'));
+        }
+        getDriverPromise.result[driverName] = localForageInstance.getDriver(driverName);
+        return getDriverPromise.result[driverName];
+    }
+
 
     var ObservableLibraryMethods = [
         'clear',
@@ -38,18 +52,12 @@
         'setItem'
     ];
 
-    function LocalForageObservable() {
-        this.subscribers = [];
+    function ObservableWrapper (options, subscriptionObserver) {
+        this.options = options;
+        this.subscriptionObserver = subscriptionObserver;
     }
 
-    LocalForageObservable.prototype.isSubscriptionObject = function (subscriptionObject) {
-        return subscriptionObject &&
-            (typeof subscriptionObject.next === 'function' ||
-             typeof subscriptionObject.error === 'function' ||
-             typeof subscriptionObject.complete === 'function');
-    };
-
-    LocalForageObservable.prototype.hasMethodFilterOptions = function () {
+    ObservableWrapper.prototype.hasMethodFilterOptions = function () {
         if (this.options) {
             for (var i = 0, methodName; (methodName = ObservableLibraryMethods[i]); i++) {
                 if (this.options[methodName]) {
@@ -60,61 +68,24 @@
         return false;
     };
 
-    LocalForageObservable.prototype.subscribe = function (subscriptionObject) {
-        if (!this.isSubscriptionObject(subscriptionObject) && arguments.length) {
-            subscriptionObject = {
-                next: typeof arguments[0] === 'function' ? arguments[0] : undefined,
-                error: typeof arguments[1] === 'function' ? arguments[1] : undefined,
-                complete: typeof arguments[2] === 'function' ? arguments[2] : undefined
-            };
-        }
-
-        if (this.isSubscriptionObject(subscriptionObject)) {
-            this.subscribers.push(subscriptionObject);
-
-            var that = this;
-            return {
-                unsubscribe: function() {
-                    that._unsubscribe(subscriptionObject);
-                }
-            };
+    ObservableWrapper.prototype.publish = function (publishObject) {
+        if (publishObject.success && typeof this.subscriptionObserver.next === 'function') {
+            try {
+                this.subscriptionObserver.next(publishObject);
+            } catch (e) { }
+        } else if (publishObject.fail && typeof this.subscriptionObserver.error === 'function') {
+            try {
+                this.subscriptionObserver.error(publishObject);
+            } catch (e) { }
         }
     };
 
-    LocalForageObservable.prototype._unsubscribe = function (subscriptionObject) {
-        if (subscriptionObject) {
-            var index = this.subscribers.indexOf(subscriptionObject);
-            if (index >= 0) {
-                return this.subscribers.splice(index, 1);
-            }
-        }
-    };
-
-    LocalForageObservable.prototype.publish = function (publishObject) {
-        for (var i = 0, subscriber; (subscriber = this.subscribers[i]); i++) {
-            if (publishObject.success && typeof subscriber.next === 'function') {
-                try {
-                    subscriber.next(publishObject);
-                } catch (e) { }
-            } else if (publishObject.fail && typeof subscriber.error === 'function') {
-                try {
-                    subscriber.error(publishObject);
-                } catch (e) { }
-            }
-        }
-    };
-
-    // LocalForageObservable.prototype.destroy = function () {
-    //     for (var i = 0, subscriber; (subscriber = this.subscribers[i]); i++) {
-    //         if (typeof subscriber.complete === 'function') {
-    //             try {
-    //                 subscriber.complete();
-    //             } catch (e) { }
-    //         }
-    //     }
-
-    //     this.subscribers.length = 0;
-    // };
+    function isSubscriptionObject(subscriptionObject) {
+        return subscriptionObject &&
+            (typeof subscriptionObject.next === 'function' ||
+             typeof subscriptionObject.error === 'function' ||
+             typeof subscriptionObject.complete === 'function');
+    }
 
     // function LocalForageObservableOptions() { }
     // LocalForageObservableOptions.prototype.key = '';
@@ -122,81 +93,34 @@
     // LocalForageObservableOptions.prototype.removeItem = true;
     // LocalForageObservableOptions.prototype.clear = true;
 
-    function setup(localforageInstance) {
-        if (!localforageInstance._observables) {
-            localforageInstance._observables = {
-                callDetection: [],
-                changeDetection: []
-            };
-
-            wireUpMethods(localforageInstance);
-        }
-    }
-
-    function extendObservable(localforageInstance, observable, options) {
-        observable.options = options;
-        // observable.localforageInstance = localforageInstance;
-        observable.localforageObservablesList = options && options.changeDetection === false ?
-            localforageInstance._observables.callDetection :
-            localforageInstance._observables.changeDetection;
-
-        var baseObservableSubscribe = observable.subscribe;
-        observable.subscribe = function() {
-            var subscription = baseObservableSubscribe.apply(this, arguments);
-            if (subscription) {
-                if (this.localforageObservablesList.indexOf(observable) < 0) {
-                    this.localforageObservablesList.push(observable);
-                }
-
-                var that = this;
-                var baseUnsubscribe = subscription.unsubscribe;
-                subscription.unsubscribe = function() {
-                    var index = that.localforageObservablesList.indexOf(observable);
-                    if (index >= 0) {
-                        return that.localforageObservablesList.splice(index, 1);
-                    }
-                };
-            }
-
-            return subscription;
-        };
-
-        // var baseDestroy = observable.destroy;
-        // observable.destroy = function() {
-        //     baseDestroy.apply(observable, arguments);
-        //     var index = targetObservablesList.indexOf(observable);
-        //     if (index >= 0) {
-        //         return targetObservablesList.splice(index, 1);
-        //     }
-        // };
-    }
-
     function localforageObservable(options) {
         var localforageInstance = this;
         setup(localforageInstance);
 
-        var observable = localforageObservable.createNewObservable();
-        extendObservable(localforageInstance, observable, options);
+        var localforageObservablesList = options && options.changeDetection === false ?
+            localforageInstance._observables.callDetection :
+            localforageInstance._observables.changeDetection;
+
+        var observable = localforageObservable.createNewObservable(function(observer) {
+            var observableWrapper = new ObservableWrapper(options, observer);
+            localforageObservablesList.push(observableWrapper);
+
+            return function() {
+                var index = localforageObservablesList.indexOf(observableWrapper);
+                if (index >= 0) {
+                    return localforageObservablesList.splice(index, 1);
+                }
+            };
+        });
 
         return observable;
     }
 
     // In case the user want to override the used Observables
     // eg: with RxJS or ES-Observable
-    localforageObservable.createNewObservable = function () {
-        return new LocalForageObservable();
+    localforageObservable.createNewObservable = function (subscribeFn) {
+        return new Observable(subscribeFn);
     };
-
-    // function getItemKeyValue(key) {
-    //     var localforageInstance = this;
-    //     var promise = localforageInstance.getItem(key).then(function(value) {
-    //         return {
-    //             key: key,
-    //             value: value
-    //         };
-    //     });
-    //     return promise;
-    // }
 
     // function LocalForageObservableChange() { }
     // LocalForageObservableChange.prototype.key = '';
@@ -208,14 +132,14 @@
     // LocalForageObservableChange.prototype.error = '';
 
     function processObserverList(list, changeArgs) {
-        for (var i = 0, observable; (observable = list[i]); i++) {
-            var itemOptions = observable.options;
+        for (var i = 0, observableWrapper; (observableWrapper = list[i]); i++) {
+            var itemOptions = observableWrapper.options;
             if (!itemOptions || (
                 (!itemOptions.key || itemOptions.key === changeArgs.key) &&
                 (itemOptions[changeArgs.methodName] === true ||
-                 !observable.hasMethodFilterOptions())
+                 !observableWrapper.hasMethodFilterOptions())
                )) {
-                observable.publish(changeArgs);
+                observableWrapper.publish(changeArgs);
             }
         }
     }
@@ -237,16 +161,17 @@
                 var detectChanges = (methodName === 'setItem' || methodName === 'removeItem') &&
                                     !!localforageInstance._observables.changeDetection.length;
 
-                var oldValuePromise = detectChanges ?
+                var getOldValuePromise = detectChanges ?
                     localforageInstance.getItem(key).then(function(value) {
                         oldValue = value;
+                        // don't return anything
                     }) :
                     Promise.resolve();
 
-                var promise = oldValuePromise.then(function() {
+                var promise = getOldValuePromise.then(function() {
                     return localforageInstance._baseMethods[methodName].apply(localforageInstance, args);
                 })/*.then(function() {
-                    return localforageInstance.getDriver(localforageInstance.driver());
+                    return getDriverPromise(localforageInstance, localforageInstance.driver());
                 }).then(function(driver) {
                     return driver[methodName].apply(localforageInstance, args);
                 })*/;
@@ -278,6 +203,17 @@
 
                 return promise;
             });
+    }
+
+    function setup(localforageInstance) {
+        if (!localforageInstance._observables) {
+            localforageInstance._observables = {
+                callDetection: [],
+                changeDetection: []
+            };
+
+            wireUpMethods(localforageInstance);
+        }
     }
 
     function wireUpMethods(localforageInstance) {
