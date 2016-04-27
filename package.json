@@ -13,6 +13,7 @@
     "url": "git://github.com/thgreasi/localForage-observable.git"
   },
   "devDependencies": {
+    "@reactivex/rxjs": "^5.0.0-beta.6"
   },
   "browser": "src/localforage-observable.js",
   "main": "src/localforage-observable.js",

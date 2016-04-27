@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <title>Simple localForage-observable example</title>
+  </head>
+  <body>
+    <script src="../bower_components/localforage/dist/localforage.js"></script>
+    <script src="../node_modules/@reactivex/rxjs/dist/global/Rx.umd.js"></script>
+    <script src="../src/localforage-observable.js"></script>
+    <script>
+      localforage.ready(function() {
+        localforage.newObservable.createNewObservable = function (subscribeFn) {
+            return Rx.Observable.create(subscribeFn);
+        };
+
+        var observable = localforage.newObservable();
+
+        var subscription = observable.subscribe({
+          next: function(args) {
+            console.log('I observe everything', args);
+          },
+          error: function(err) {
+            console.log('Found an error!', err);
+          },
+          complete: function() {
+            console.log('Observable destroyed!');
+          }
+        });
+
+        localforage.setItem('test1', 'value1').then(function() {
+          console.log('setItem(\'test1\', \'value1\')');
+          return localforage.setItem('test2', 'value2');
+        }).then(function() {
+          console.log('setItem(\'test2\', \'value2\')');
+          return localforage.setItem('test2', 'value2b');
+        }).then(function() {
+          console.log('setItem(\'test2\', \'value2b\')');
+          return localforage.setItem('test2', 'value2b');
+        }).then(function() {
+          console.log('setItem(\'test2\', \'value2b\')');
+          return localforage.setItem('test3', 'value3');
+        }).then(function() {
+          console.log('setItem(\'test3\', \'value3\')');
+          subscription.unsubscribe();
+          return localforage.setItem('notObservedKey', 'notObservedValue');
+        }).then(function() {
+          console.log('setItem(\'notObservedKey\', \'notObservedValue\')');
+          return localforage.clear();
+        });
+      });
+    </script>
+
+    <p>
+      Check your console log.
+    </p>
+  </body>
+</html>
