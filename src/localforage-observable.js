@@ -34,7 +34,7 @@
         if (!localForageInstance || typeof localForageInstance.getDriver !== 'function') {
             Promise.reject(new Error(
                 'localforage.getDriver() was not available! ' +
-                'localforage-cordovasqlitedriver requires localforage v1.4+'));
+                'localforage-observable requires localforage v1.4+'));
         }
         getDriverPromise.result[driverName] = localForageInstance.getDriver(driverName);
         return getDriverPromise.result[driverName];
