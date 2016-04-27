@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <title>localForage-observable key observation example</title>
+  </head>
+  <body>
+    <script src="../bower_components/localforage/dist/localforage.js"></script>
+    <script src="../node_modules/zen-observable/zen-observable.js"></script>
+    <script src="../src/localforage-observable.js"></script>
+    <script>
+      localforage.ready(function() {
+        var observable = localforage.newObservable();
+
+        var subscription = observable.subscribe({
+          next: function(args) {
+            console.log('I observe everything', args);
+          },
+          error: function(err) {
+            console.log('Found an error!', err);
+          },
+          complete: function() {
+            console.log('Observable destroyed!');
+          }
+        });
+
+        var useProfileObservable = localforage.newObservable({
+          key: 'UserProfile'
+        });
+
+        var useProfileSubscription = useProfileObservable.subscribe({
+          next: function(args) {
+            console.log(args.key + ' changed from ', args.oldValue, ' to ', args.newValue, ' using ' + args.methodName);
+          }
+        });
+
+        localforage.setItem('UserProfile', {
+          UserName: 'user1',
+          Password: '12345'
+        }).then(function(){
+          return localforage.setItem('UserProfile', {
+            UserName: 'user1',
+            Password: '67890'
+          });
+        }).then(function(){
+          // this should not notify the subscribers
+          return localforage.setItem('UserProfile', {
+            UserName: 'user1',
+            Password: '67890'
+          });
+        }).then(function() {
+
+          return localforage.setItem('test1', 'value1');
+        }).then(function() {
+          return localforage.setItem('test2', 'value2');
+        }).then(function() {
+          return localforage.setItem('test2', 'value2b');
+        }).then(function() {
+          // this should not notify the subscribers
+          return localforage.setItem('test2', 'value2b');
+        }).then(function() {
+          return localforage.setItem('test3', 'value3');
+        }).then(function() {
+          subscription.unsubscribe();
+          return localforage.setItem('notObservedKey', 'notObservedValue');
+        }).then(function() {
+          return localforage.clear();
+        });
+      });
+    </script>
+
+    <p>
+      Check your console log.
+    </p>
+  </body>
+</html>
