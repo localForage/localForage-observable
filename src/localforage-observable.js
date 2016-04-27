@@ -87,12 +87,6 @@
              typeof subscriptionObject.complete === 'function');
     }
 
-    // function LocalForageObservableOptions() { }
-    // LocalForageObservableOptions.prototype.key = '';
-    // LocalForageObservableOptions.prototype.setItem = true;
-    // LocalForageObservableOptions.prototype.removeItem = true;
-    // LocalForageObservableOptions.prototype.clear = true;
-
     function localforageObservable(options) {
         var localforageInstance = this;
         setup(localforageInstance);
@@ -121,15 +115,6 @@
     localforageObservable.createNewObservable = function (subscribeFn) {
         return new Observable(subscribeFn);
     };
-
-    // function LocalForageObservableChange() { }
-    // LocalForageObservableChange.prototype.key = '';
-    // LocalForageObservableChange.prototype.methodName = '';
-    // LocalForageObservableChange.prototype.oldValue = null;
-    // LocalForageObservableChange.prototype.newValue = null;
-    // LocalForageObservableChange.prototype.success = false;
-    // LocalForageObservableChange.prototype.fail = false;
-    // LocalForageObservableChange.prototype.error = '';
 
     function processObserverList(list, changeArgs) {
         for (var i = 0, observableWrapper; (observableWrapper = list[i]); i++) {
