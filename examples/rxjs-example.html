@@ -10,7 +10,7 @@
     <script src="../src/localforage-observable.js"></script>
     <script>
       localforage.ready(function() {
-        localforage.newObservable.createNewObservable = function (subscribeFn) {
+        localforage.newObservable.factory = function (subscribeFn) {
             return Rx.Observable.create(subscribeFn);
         };
 

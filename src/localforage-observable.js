@@ -95,7 +95,7 @@
             localforageInstance._observables.callDetection :
             localforageInstance._observables.changeDetection;
 
-        var observable = localforageObservable.createNewObservable(function(observer) {
+        var observable = localforageObservable.factory(function(observer) {
             var observableWrapper = new LocalForageObservableWrapper(options, observer);
             localforageObservablesList.push(observableWrapper);
 
@@ -112,7 +112,7 @@
 
     // In case the user want to override the used Observables
     // eg: with RxJS or ES-Observable
-    localforageObservable.createNewObservable = function (subscribeFn) {
+    localforageObservable.factory = function (subscribeFn) {
         return new Observable(subscribeFn);
     };
 
