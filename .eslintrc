@@ -1,0 +1,15 @@
+{
+  "parser": "babel-eslint",
+  "extends": "eslint:recommended",
+  "env": {
+    "node": true,
+    "mocha": true
+  },
+  "globals": {
+    "localforage": true,
+    "Promise": true,
+    "Observable": true,
+    "self": true,
+    "System": true
+  }
+}
