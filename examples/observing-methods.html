@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <title>localForage-observable method observation example</title>
+  </head>
+  <body>
+    <script src="../bower_components/localforage/dist/localforage.js"></script>
+    <script src="../node_modules/zen-observable/zen-observable.js"></script>
+    <script src="../src/localforage-observable.js"></script>
+    <script>
+      localforage.ready(function() {
+        var methodCallObservable = localforage.newObservable({
+          setItem: true,
+          changeDetection: false
+        });
+
+        var methodCallSubscription = methodCallObservable.subscribe({
+          next: function(args) {
+            console.log('Method ' + args.methodName + ' was called.', args );
+          }
+        });
+
+        localforage.setItem('UserProfile', {
+          UserName: 'user1',
+          Password: '12345'
+        }).then(function(){
+          return localforage.setItem('UserProfile', {
+            UserName: 'user1',
+            Password: '67890'
+          });
+        }).then(function(){
+          // this should not notify the subscribers
+          return localforage.setItem('UserProfile', {
+            UserName: 'user1',
+            Password: '67890'
+          });
+        }).then(function() {
+
+          return localforage.setItem('test1', 'value1');
+        }).then(function() {
+          return localforage.setItem('test2', 'value2');
+        }).then(function() {
+          return localforage.setItem('test2', 'value2b');
+        }).then(function() {
+          // this should not notify the subscribers
+          return localforage.setItem('test2', 'value2b');
+        }).then(function() {
+          return localforage.setItem('test3', 'value3');
+        }).then(function() {
+          return localforage.clear();
+        }).then(function() {
+          methodCallSubscription.unsubscribe();
+        });
+      });
+    </script>
+
+    <p>
+      Check your console log.
+    </p>
+  </body>
+</html>
