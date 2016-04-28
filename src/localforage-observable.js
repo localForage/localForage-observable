@@ -197,19 +197,25 @@
     function handleMethodCall(localforageInstance, methodName, args) {
         return localforageInstance.ready()
             .then(function () {
-                var key = args[0];
-                var oldValue = null;
-                var newValue = null;
-                if (methodName === 'setItem' && newValue !== undefined) {
-                    newValue = args[1];
+                var changeArgs = {
+                    key: args[0],
+                    methodName: methodName,
+                    oldValue: null,
+                    newValue: null
+                };
+
+                if (methodName === 'setItem' && args[1] !== undefined) {
+                    changeArgs.newValue = args[1];
                 }
 
+                // if change detection is enabled to at least one active observable
+                // and an applicable method is called then we should retrieve the old value
                 var detectChanges = (methodName === 'setItem' || methodName === 'removeItem') &&
                                     !!localforageInstance._observables.changeDetection.length;
 
                 var getOldValuePromise = detectChanges ?
-                    localforageInstance.getItem(key).then(function(value) {
-                        oldValue = value;
+                    localforageInstance.getItem(changeArgs.key).then(function(value) {
+                        changeArgs.oldValue = value;
                         // don't return anything
                     }) :
                     Promise.resolve();
@@ -222,13 +228,6 @@
                     return driver[methodName].apply(localforageInstance, args);
                 })*/;
 
-                var changeArgs = {
-                    key: key,
-                    methodName: methodName,
-                    oldValue: oldValue,
-                    newValue: newValue
-                };
-
                 // don't return this promise so that the observers
                 // get notified after the method invoker
                 promise.then(function() {
@@ -237,7 +236,7 @@
                     changeArgs.fail = true;
                     changeArgs.error = error;
                 }).then(function() {
-                    if (detectChanges && !isEqual(oldValue, newValue)) {
+                    if (detectChanges && !isEqual(changeArgs.oldValue, changeArgs.newValue)) {
                         processObserverList(
                             localforageInstance._observables.changeDetection,
                             changeArgs);
