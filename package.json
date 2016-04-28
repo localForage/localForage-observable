@@ -1,27 +1,43 @@
 {
   "name": "localforage-observable",
-  "author": "Thodoris Greasidis",
+  "version": "0.9.1",
   "description": "Adds observable method to localForage.",
-  "keywords": [
-    "localforage",
-    "observable"
-  ],
-  "version": "0.9.0",
   "homepage": "https://github.com/thgreasi/localForage-observable",
+  "main": "dist/localforage-observable.js",
+  "jsnext:main": "dist/localforage-observable.es6.js",
+  "scripts": {
+    "prebuild": "eslint lib test",
+    "build": "rollup -c rollup.config.umd.js && rollup -c rollup.config.es6.js",
+    "pretest": "rollup -c rollup.config.test.js",
+    "test": "mocha build/test-bundle.js",
+    "prepublish": "npm run build && npm test"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/thgreasi/localForage-observable.git"
   },
-  "devDependencies": {
-    "@reactivex/rxjs": "^5.0.0-beta.6"
-  },
-  "browser": "src/localforage-observable.js",
-  "main": "src/localforage-observable.js",
+  "keywords": [
+    "localforage",
+    "observable"
+  ],
+  "author": "Thodoris Greasidis",
   "licence": "Apache-2.0",
   "bugs": {
     "url": "http://github.com/thgreasi/localForage-observable/issues"
   },
+  "devDependencies": {
+    "@reactivex/rxjs": "^5.0.0-beta.7",
+    "babel-eslint": "^6.0.4",
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "eslint": "^2.8.0",
+    "mocha": "^2.4.5",
+    "rollup": "^0.26.1",
+    "rollup-plugin-babel": "^2.4.0",
+    "rollup-plugin-multi-entry": "^1.2.0",
+    "source-map-support": "^0.4.0"
+  },
   "dependencies": {
+    "localforage": ">=1.3.0",
     "zen-observable": "^0.2.1"
   }
 }
