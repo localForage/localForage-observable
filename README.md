@@ -1,6 +1,8 @@
 # localForage-observable
 [![npm](https://img.shields.io/npm/dm/localforage-observable.svg)](https://www.npmjs.com/package/localforage-observable)  
-Adds observable method to [localForage](https://github.com/mozilla/localForage).
+Adds observables to [localForage](https://github.com/mozilla/localForage), providing a way to get notified whenever:
+* a method that affects the database is invoked
+* the value associated with a specific key changes
 
 ## Requirements
 
