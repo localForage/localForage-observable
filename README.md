@@ -68,6 +68,11 @@ var observable = localforage.newObservable({
 });
 ```
 
+## Examples
+* [Simple example](http://codepen.io/thgreasi/pen/pyXbRg)
+* [Observing keys](http://codepen.io/thgreasi/pen/LNKZxQ)
+* [Observing methods](http://codepen.io/thgreasi/pen/wGLWgL)
+
 ## API
 ```typescript
 interface LocalForageObservableOptions {
