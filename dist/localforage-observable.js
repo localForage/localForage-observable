@@ -1,8 +1,10 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-    typeof define === 'function' && define.amd ? define(['exports'], factory) :
-    (factory((global.localforageObservable = global.localforageObservable || {})));
-}(this, function (exports) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('localforage')) :
+    typeof define === 'function' && define.amd ? define(['exports', 'localforage'], factory) :
+    (factory((global.localforageObservable = global.localforageObservable || {}),global.localforage));
+}(this, function (exports,localforage) { 'use strict';
+
+    localforage = 'default' in localforage ? localforage['default'] : localforage;
 
     var babelHelpers = {};
     babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {

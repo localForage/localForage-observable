@@ -1,3 +1,5 @@
+import localforage from 'localforage';
+
 var babelHelpers = {};
 babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
