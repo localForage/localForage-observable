@@ -1,10 +1,11 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('localforage')) :
-    typeof define === 'function' && define.amd ? define(['exports', 'localforage'], factory) :
-    (factory((global.localforageObservable = global.localforageObservable || {}),global.localforage));
-}(this, function (exports,localforage) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('localforage'), require('window')) :
+    typeof define === 'function' && define.amd ? define(['exports', 'localforage', 'window'], factory) :
+    (factory((global.localforageObservable = global.localforageObservable || {}),global.localforage,global.window));
+}(this, function (exports,localforage,window) { 'use strict';
 
     localforage = 'default' in localforage ? localforage['default'] : localforage;
+    window = 'default' in window ? window['default'] : window;
 
     var babelHelpers = {};
     babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -151,11 +152,139 @@
     function processObserverList(list, changeArgs) {
         for (var i = 0, observableWrapper; observableWrapper = list[i]; i++) {
             var itemOptions = observableWrapper.options;
-            if (!itemOptions || (!itemOptions.key || itemOptions.key === changeArgs.key) && (itemOptions[changeArgs.methodName] === true || !observableWrapper.hasMethodFilterOptions())) {
+            if (!itemOptions || (!itemOptions.key || itemOptions.key === changeArgs.key) && (itemOptions[changeArgs.methodName] === true || !observableWrapper.hasMethodFilterOptions()) && (
+            // do not publish cross tab evets when the observable
+            // doesn't explicitelly require it,
+            // to avoid messing troubles in existing implementations.
+            !changeArgs.crossTabNotification || itemOptions.crossTabNotification)) {
                 observableWrapper.publish(changeArgs);
             }
         }
     }
+
+    var isSupported = typeof window !== 'undefined' && window.addEventListener && typeof JSON !== 'undefined' && JSON.stringify && JSON.parse && localforage.supports(localforage.LOCALSTORAGE);
+
+    var sysKeyPrefix = ['_localforage_sys', '_localforage_observable_sys'].join('/');
+
+    var db = isSupported ? window.localStorage : null;
+    var inited = false;
+
+    var StorageEventObserver = function () {
+        function StorageEventObserver(localforageInstance) {
+            babelHelpers.classCallCheck(this, StorageEventObserver);
+
+            this.localforageInstance = localforageInstance;
+            this._onStorageEventBinded = this._onStorageEvent.bind(this);
+        }
+
+        babelHelpers.createClass(StorageEventObserver, [{
+            key: 'setup',
+            value: function setup() {
+                if (!isSupported || inited) {
+                    return;
+                }
+                window.addEventListener('storage', this._onStorageEventBinded, false);
+                inited = true;
+            }
+        }, {
+            key: 'destroy',
+            value: function destroy() {
+                this.localforageInstance = null;
+                if (inited) {
+                    window.removeEventListener('storage', this._onStorageEventBinded, false);
+                    inited = false;
+                }
+            }
+        }, {
+            key: '_onStorageEvent',
+            value: function _onStorageEvent(e) {
+                var _this = this;
+
+                if (e.key !== sysKeyPrefix) {
+                    return;
+                }
+                try {
+                    var payload = JSON.parse(e.newValue);
+                    if (!payload) {
+                        return;
+                    }
+
+                    var dbInfo = this.localforageInstance._dbInfo;
+                    if (dbInfo.name !== payload.name || dbInfo.storeName !== payload.storeName) {
+                        return;
+                    }
+
+                    return this.localforageInstance.ready().then(function () {
+                        var changeArgs = {
+                            key: payload.key,
+                            methodName: payload.methodName,
+                            oldValue: null,
+                            newValue: null,
+                            success: payload.success,
+                            fail: payload.fail,
+                            error: payload.error,
+                            valueChange: payload.valueChange,
+                            crossTabNotification: 'StorageEvent',
+                            originalEvent: e
+                        };
+
+                        if (payload.methodName === 'setItem' && payload.success) {
+                            return _this.localforageInstance.getItem(payload.key).then(function (newValue) {
+                                changeArgs.newValue = newValue;
+                                return changeArgs;
+                            });
+                        }
+                        return changeArgs;
+                    }).then(function (changeArgs) {
+                        // this will run only in case the crossTabChangeDetection
+                        // is enaled on the other page or there is at least one
+                        // changeDetection Observable
+                        if (changeArgs.valueChange) {
+                            processObserverList(_this.localforageInstance._observables.changeDetection, changeArgs);
+                        }
+                        processObserverList(_this.localforageInstance._observables.callDetection, changeArgs);
+                    });
+                } catch (ex) {
+                    return Promise.reject(ex);
+                }
+            }
+        }, {
+            key: 'publish',
+            value: function publish(changeArgs) {
+                if (!isSupported) {
+                    return;
+                }
+
+                var dbInfo = this.localforageInstance._dbInfo;
+
+                var errorString;
+                try {
+                    if (changeArgs.error) {
+                        errorString = JSON.stringify(changeArgs.error);
+                    }
+                } catch (ex) {
+                    // empty
+                }
+
+                var payload = {
+                    name: dbInfo.name,
+                    storeName: dbInfo.storeName,
+                    key: changeArgs.key,
+                    methodName: changeArgs.methodName,
+                    valueChange: changeArgs.valueChange,
+                    success: changeArgs.success,
+                    fail: changeArgs.fail,
+                    error: errorString,
+                    ticks: +new Date()
+                };
+
+                var value = JSON.stringify(payload);
+
+                db.setItem(sysKeyPrefix, value);
+            }
+        }]);
+        return StorageEventObserver;
+    }();
 
     function handleMethodCall(localforageInstance, methodName, args) {
         return localforageInstance.ready().then(function () {
@@ -172,7 +301,7 @@
 
             // if change detection is enabled to at least one active observable
             // and an applicable method is called then we should retrieve the old value
-            var detectChanges = (methodName === 'setItem' || methodName === 'removeItem') && !!localforageInstance._observables.changeDetection.length;
+            var detectChanges = (methodName === 'setItem' || methodName === 'removeItem') && (localforageInstance._observables.changeDetection.length || localforageInstance._observables.crossTabChangeDetection);
 
             var getOldValuePromise = detectChanges ? localforageInstance.getItem(changeArgs.key).then(function (value) {
                 changeArgs.oldValue = value;
@@ -181,11 +310,7 @@
 
             var promise = getOldValuePromise.then(function () {
                 return localforageInstance._baseMethods[methodName].apply(localforageInstance, args);
-            }) /*.then(function() {
-                 return getDriverPromise(localforageInstance, localforageInstance.driver());
-               }).then(function(driver) {
-                 return driver[methodName].apply(localforageInstance, args);
-               })*/;
+            });
 
             // don't return this promise so that the observers
             // get notified after the method invoker
@@ -195,10 +320,15 @@
                 changeArgs.fail = true;
                 changeArgs.error = error;
             }).then(function () {
-                if (detectChanges && !equals(changeArgs.oldValue, changeArgs.newValue)) {
+                changeArgs.valueChange = detectChanges && !equals(changeArgs.oldValue, changeArgs.newValue);
+                if (changeArgs.valueChange) {
                     processObserverList(localforageInstance._observables.changeDetection, changeArgs);
                 }
                 processObserverList(localforageInstance._observables.callDetection, changeArgs);
+            }).then(function () {
+                if (localforageInstance._observables.crossTabObserver) {
+                    localforageInstance._observables.crossTabObserver.publish(changeArgs);
+                }
             });
 
             return promise;
@@ -229,6 +359,31 @@
 
             wireUpMethods(localforageInstance);
         }
+        if (!localforageInstance._observables.crossTabObserver) {
+            localforageInstance._observables.crossTabObserver = new StorageEventObserver(localforageInstance);
+        }
+    }
+
+    function configObservables(options) {
+        var localforageInstance = this;
+        setup(localforageInstance);
+
+        if (!options) {
+            return;
+        }
+
+        var obs = localforageInstance._observables;
+        if (options.crossTabNotification) {
+            if (!obs.crossTabObserver) {
+                obs.crossTabObserver = new StorageEventObserver(localforageInstance);
+            }
+            obs.crossTabObserver.setup();
+        } else {
+            obs.crossTabObserver.destroy();
+            obs.crossTabObserver = null;
+        }
+
+        obs = options.crossTabChangeDetection;
     }
 
     function localforageObservable(options) {
@@ -263,6 +418,7 @@
             var localforagePrototype = Object.getPrototypeOf(localforage);
             if (localforagePrototype) {
                 localforagePrototype.newObservable = localforageObservable;
+                localforagePrototype.configObservables = configObservables;
                 return true;
             }
         } catch (e) {/* */}
