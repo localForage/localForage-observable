@@ -68,11 +68,51 @@ var observable = localforage.newObservable({
 });
 ```
 
+## Cross-Tab Observables [#5](https://github.com/localForage/localForage-observable/issues/5)
+Cross-tab event emition, observation and value change detection **are disabled by default**.
+
+In order to enable it, you have to:  
+1) call the `configObservables()` method to start emmiting cross-tab events:
+```js
+localforage.configObservables({
+  crossTabNotification: true
+});
+```
+2) create observables with cross-tab observation enabled:
+```js
+var observable = localforage.newObservable({
+  crossTabNotification: true,
+  changeDetection: false
+});
+```
+The arguments passed to cross-tab observable callbacks,  will also have the `crossTabNotification` property set.
+
+### Cross-tab change detection
+
+Cross-tab observation with change detection is also supported, but with some limitations.
+The arguments passed to the callback will have the `valueChange` property set to true but:
+* the `oldValue` will **always** be `null` and 
+* the `newValue` will hold the value retrieved from the *local* db at the time that the notification arrived.
+In that case you can use:
+```js
+localforage.configObservables({
+  crossTabNotification: true,
+  crossTabChangeDetection: true
+});
+var observable = localforage.newObservable({
+  crossTabNotification: true
+});
+```
+
+
+
 ## Examples
 * [Simple example](http://codepen.io/thgreasi/pen/pyXbRg)
 * [Observing keys](http://codepen.io/thgreasi/pen/LNKZxQ)
 * [Observing methods](http://codepen.io/thgreasi/pen/wGLWgL)
 * [Simple RxJS 5 example](http://codepen.io/thgreasi/pen/wGLWmv)
+* [Cross-tab Observables](http://codepen.io/thgreasi/pen/NdObOW)
+* [Cross-tab Change Detection](http://codepen.io/thgreasi/pen/bgmBmb)
 
 ## API
 ```typescript
@@ -89,9 +129,11 @@ interface LocalForageObservableChange {
     methodName: string;
     oldValue: any;
     newValue: any;
+    valueChange?: boolean;
     success?: boolean;
     fail?: boolean;
     error: any;
+    crossTabNotification?: string;
 }
 ```
 

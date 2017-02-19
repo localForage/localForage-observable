@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf8" />
-    <title>Simple localForage-observable example</title>
+    <title>cross-tab change detection localForage-observable example</title>
   </head>
   <body>
     <script src="../node_modules/localforage/dist/localforage.js"></script>
@@ -10,14 +10,29 @@
     <script src="../dist/localforage-observable.js"></script>
     <script>
       localforage.ready(function() {
-        var observable = localforage.newObservable();
+        localforage.configObservables({
+          crossTabNotification: true,
+          crossTabChangeDetection: true
+        });
+        var observable = localforage.newObservable({
+          crossTabNotification: true
+        });
 
         var observableLogs = [];
 
         var subscription = observable.subscribe({
           next: function(args) {
-            observableLogs.push(args.methodName + '(\'' + args.key + '\', ' + '\'' + args.newValue + '\')');
-            console.log('I observe everything', args);
+            if (args.crossTabNotification) {
+              observableLogs.push(args.methodName + '(\'' + args.key + '\')');
+              if (expectedLogs.length === observableLogs.length) {
+                setTimeout(function() {
+                  checkExpectations();
+                }, 500);
+              }
+              console.log('!!Received from an other tab!!', args);
+            } else {
+              console.log('I observe everything', args);
+            }
           },
           error: function(err) {
             console.log('Found an error!', err);
@@ -34,6 +49,7 @@
           console.log('setItem(\'test2\', \'value2\')');
           return localforage.setItem('test2', 'value2b');
         }).then(function() {
+          // this should not notify the subscribers
           console.log('setItem(\'test2\', \'value2b\')');
           return localforage.setItem('test2', 'value2b');
         }).then(function() {
@@ -41,20 +57,15 @@
           return localforage.setItem('test3', 'value3');
         }).then(function() {
           console.log('setItem(\'test3\', \'value3\')');
-          subscription.unsubscribe();
-          return localforage.setItem('notObservedKey', 'notObservedValue');
         }).then(function() {
-          console.log('setItem(\'notObservedKey\', \'notObservedValue\')');
           return localforage.clear();
-        }).then(function() {
-          checkExpectations();
         });
 
         var expectedLogs = [
-          'setItem(\'test1\', \'value1\')',
-          'setItem(\'test2\', \'value2\')',
-          'setItem(\'test2\', \'value2b\')',
-          'setItem(\'test3\', \'value3\')'
+          'setItem(\'test1\')',
+          'setItem(\'test2\')',
+          'setItem(\'test2\')',
+          'setItem(\'test3\')'
         ];
 
         function checkExpectations() {
@@ -75,6 +86,7 @@
     </script>
 
     <p>
+      Open a second tab and <br/>
       Check your console log.
     </p>
   </body>
