@@ -18,9 +18,17 @@
           crossTabNotification: true
         });
 
+        var observableLogs = [];
+
         var subscription = observable.subscribe({
           next: function(args) {
             if (args.crossTabNotification) {
+              observableLogs.push(args.methodName + '(\'' + args.key + '\')');
+              if (expectedLogs.length === observableLogs.length) {
+                setTimeout(function() {
+                  checkExpectations();
+                }, 500);
+              }
               console.log('!!Received from an other tab!!', args);
             } else {
               console.log('I observe everything', args);
@@ -52,6 +60,28 @@
         }).then(function() {
           return localforage.clear();
         });
+
+        var expectedLogs = [
+          'setItem(\'test1\')',
+          'setItem(\'test2\')',
+          'setItem(\'test2\')',
+          'setItem(\'test3\')'
+        ];
+
+        function checkExpectations() {
+          if (expectedLogs.length !== observableLogs.length) {
+            console.error('Tests: Unexpected log length');
+            return;
+          }
+          for (var i = 0; i < expectedLogs.length; i++) {
+            if (expectedLogs[i] !== observableLogs[i]) {
+              console.error('Tests: Unexpected logs');
+              return;
+            }
+          }
+          console.info('Tests: OK');
+          return true;
+        }
       });
     </script>
 

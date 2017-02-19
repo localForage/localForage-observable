@@ -12,8 +12,11 @@
       localforage.ready(function() {
         var observable = localforage.newObservable();
 
+        var observableLogs = [];
+
         var subscription = observable.subscribe({
           next: function(args) {
+            observableLogs.push(args.methodName + '(\'' + args.key + '\', ' + '\'' + args.newValue + '\')');
             console.log('I observe everything', args);
           },
           error: function(err) {
@@ -43,7 +46,31 @@
         }).then(function() {
           console.log('setItem(\'notObservedKey\', \'notObservedValue\')');
           return localforage.clear();
+        }).then(function() {
+          checkExpectations();
         });
+
+        var expectedLogs = [
+          'setItem(\'test1\', \'value1\')',
+          'setItem(\'test2\', \'value2\')',
+          'setItem(\'test2\', \'value2b\')',
+          'setItem(\'test3\', \'value3\')'
+        ];
+
+        function checkExpectations() {
+          if (expectedLogs.length !== observableLogs.length) {
+            console.error('Tests: Unexpected log length');
+            return;
+          }
+          for (var i = 0; i < expectedLogs.length; i++) {
+            if (expectedLogs[i] !== observableLogs[i]) {
+              console.error('Tests: Unexpected logs');
+              return;
+            }
+          }
+          console.info('Tests: OK');
+          return true;
+        }
       });
     </script>
 
