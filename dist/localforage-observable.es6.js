@@ -1,20 +1,29 @@
 import localforage from 'localforage';
 import window from 'window';
 
-var babelHelpers = {};
-babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
 } : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
 
-babelHelpers.classCallCheck = function (instance, Constructor) {
+
+
+
+
+
+
+
+
+
+
+var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
   }
 };
 
-babelHelpers.createClass = function () {
+var createClass = function () {
   function defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
       var descriptor = props[i];
@@ -31,8 +40,6 @@ babelHelpers.createClass = function () {
     return Constructor;
   };
 }();
-
-babelHelpers;
 
 // thanks AngularJS
 function isDate(value) {
@@ -60,8 +67,8 @@ function equals(o1, o2) {
     if (o1 === o2) return true;
     if (o1 === null || o2 === null) return false;
     if (o1 !== o1 && o2 !== o2) return true; // NaN === NaN
-    var t1 = typeof o1 === 'undefined' ? 'undefined' : babelHelpers.typeof(o1),
-        t2 = typeof o2 === 'undefined' ? 'undefined' : babelHelpers.typeof(o2),
+    var t1 = typeof o1 === 'undefined' ? 'undefined' : _typeof(o1),
+        t2 = typeof o2 === 'undefined' ? 'undefined' : _typeof(o2),
         length,
         key,
         keySet;
@@ -108,13 +115,13 @@ var ObservableLibraryMethods = ['clear',
 
 var LocalForageObservableWrapper = function () {
     function LocalForageObservableWrapper(options, subscriptionObserver) {
-        babelHelpers.classCallCheck(this, LocalForageObservableWrapper);
+        classCallCheck(this, LocalForageObservableWrapper);
 
         this.options = options;
         this.subscriptionObserver = subscriptionObserver;
     }
 
-    babelHelpers.createClass(LocalForageObservableWrapper, [{
+    createClass(LocalForageObservableWrapper, [{
         key: 'hasMethodFilterOptions',
         value: function hasMethodFilterOptions() {
             if (this.options) {
@@ -134,10 +141,10 @@ var LocalForageObservableWrapper = function () {
                     this.subscriptionObserver.next(publishObject);
                 } catch (e) {/* */}
             } else if (publishObject.fail && typeof this.subscriptionObserver.error === 'function') {
-                    try {
-                        this.subscriptionObserver.error(publishObject);
-                    } catch (e) {/* */}
-                }
+                try {
+                    this.subscriptionObserver.error(publishObject);
+                } catch (e) {/* */}
+            }
         }
     }]);
     return LocalForageObservableWrapper;
@@ -165,13 +172,13 @@ var inited = false;
 
 var StorageEventObserver = function () {
     function StorageEventObserver(localforageInstance) {
-        babelHelpers.classCallCheck(this, StorageEventObserver);
+        classCallCheck(this, StorageEventObserver);
 
         this.localforageInstance = localforageInstance;
         this._onStorageEventBinded = this._onStorageEvent.bind(this);
     }
 
-    babelHelpers.createClass(StorageEventObserver, [{
+    createClass(StorageEventObserver, [{
         key: 'setup',
         value: function setup() {
             if (!isSupported || inited) {
@@ -344,7 +351,7 @@ function wireUpMethods(localforageInstance) {
     }
 }
 
-function setup(localforageInstance) {
+function setup$1(localforageInstance) {
     if (!localforageInstance._observables) {
         localforageInstance._observables = {
             callDetection: [],
@@ -360,7 +367,7 @@ function setup(localforageInstance) {
 
 function configObservables(options) {
     var localforageInstance = this;
-    setup(localforageInstance);
+    setup$1(localforageInstance);
 
     if (!options) {
         return;
@@ -382,7 +389,7 @@ function configObservables(options) {
 
 function localforageObservable(options) {
     var localforageInstance = this;
-    setup(localforageInstance);
+    setup$1(localforageInstance);
 
     var localforageObservablesList = options && options.changeDetection === false ? localforageInstance._observables.callDetection : localforageInstance._observables.changeDetection;
 
@@ -407,9 +414,9 @@ localforageObservable.factory = function (subscribeFn) {
     return new Observable(subscribeFn);
 };
 
-function extendPrototype(localforage) {
+function extendPrototype(localforage$$1) {
     try {
-        var localforagePrototype = Object.getPrototypeOf(localforage);
+        var localforagePrototype = Object.getPrototypeOf(localforage$$1);
         if (localforagePrototype) {
             localforagePrototype.newObservable = localforageObservable;
             localforagePrototype.configObservables = configObservables;
