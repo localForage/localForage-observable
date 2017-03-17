@@ -1,11 +1,10 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('localforage'), require('window')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'localforage', 'window'], factory) :
-  (factory((global.localforageObservable = global.localforageObservable || {}),global.localforage,global.window));
-}(this, (function (exports,localforage,window) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('localforage')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'localforage'], factory) :
+  (factory((global.localforageObservable = global.localforageObservable || {}),global.localforage));
+}(this, (function (exports,localforage) { 'use strict';
 
 localforage = 'default' in localforage ? localforage['default'] : localforage;
-window = 'default' in window ? window['default'] : window;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
@@ -169,7 +168,8 @@ function processObserverList(list, changeArgs) {
     }
 }
 
-var isSupported = typeof window !== 'undefined' && window.addEventListener && typeof JSON !== 'undefined' && JSON.stringify && JSON.parse && localforage.supports(localforage.LOCALSTORAGE);
+/* global window:true */
+var isSupported = typeof window !== 'undefined' && typeof window.addEventListener === 'function' && typeof window.removeEventListener === 'function' && typeof JSON !== 'undefined' && JSON.stringify && JSON.parse && localforage.supports(localforage.LOCALSTORAGE);
 
 var sysKeyPrefix = ['_localforage_sys', '_localforage_observable_sys'].join('/');
 

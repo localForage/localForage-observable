@@ -1,5 +1,4 @@
 import localforage from 'localforage';
-import window from 'window';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
@@ -163,7 +162,8 @@ function processObserverList(list, changeArgs) {
     }
 }
 
-var isSupported = typeof window !== 'undefined' && window.addEventListener && typeof JSON !== 'undefined' && JSON.stringify && JSON.parse && localforage.supports(localforage.LOCALSTORAGE);
+/* global window:true */
+var isSupported = typeof window !== 'undefined' && typeof window.addEventListener === 'function' && typeof window.removeEventListener === 'function' && typeof JSON !== 'undefined' && JSON.stringify && JSON.parse && localforage.supports(localforage.LOCALSTORAGE);
 
 var sysKeyPrefix = ['_localforage_sys', '_localforage_observable_sys'].join('/');
 
