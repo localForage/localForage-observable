@@ -420,12 +420,12 @@ function extendPrototype(localforage$$1) {
         if (localforagePrototype) {
             localforagePrototype.newObservable = localforageObservable;
             localforagePrototype.configObservables = configObservables;
-            return true;
+            return localforage$$1;
         }
     } catch (e) {/* */}
     return false;
 }
 
-var extendPrototypeResult = extendPrototype(localforage);
+var extendPrototypeResult = !!extendPrototype(localforage);
 
 export { localforageObservable, extendPrototype, extendPrototypeResult };
