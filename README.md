@@ -104,18 +104,6 @@ var observable = localforage.newObservable({
 });
 ```
 
-
-
-## Examples
-* [Simple example](http://codepen.io/thgreasi/pen/pyXbRg)
-* [Observing keys](http://codepen.io/thgreasi/pen/LNKZxQ)
-* [Observing methods](http://codepen.io/thgreasi/pen/wGLWgL)
-* [Simple RxJS 5 example](http://codepen.io/thgreasi/pen/wGLWmv)
-* [Cross-tab Observables](http://codepen.io/thgreasi/pen/NdObOW)
-* [Cross-tab Change Detection](http://codepen.io/thgreasi/pen/bgmBmb)
-* [Exaple Ionic2/Angular2/Typescript project](https://github.com/thgreasi/localForage-cordovaSQLiteDriver-TestIonic2App)
-
-
 ## API
 ```typescript
 interface LocalForageObservableOptions {
@@ -167,3 +155,13 @@ localforage.ready().then(() => {
 });
 
 ```
+
+
+## Examples
+* [Simple example](http://codepen.io/thgreasi/pen/pyXbRg)
+* [Observing keys](http://codepen.io/thgreasi/pen/LNKZxQ)
+* [Observing methods](http://codepen.io/thgreasi/pen/wGLWgL)
+* [Simple RxJS 5 example](http://codepen.io/thgreasi/pen/wGLWmv)
+* [Cross-tab Observables](http://codepen.io/thgreasi/pen/NdObOW)
+* [Cross-tab Change Detection](http://codepen.io/thgreasi/pen/bgmBmb)
+* [Exaple Ionic2/Angular2/Typescript project](https://github.com/thgreasi/localForage-cordovaSQLiteDriver-TestIonic2App)
