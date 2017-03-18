@@ -393,17 +393,17 @@ function configObservables(options) {
     obs = options.crossTabChangeDetection;
 }
 
-function localforageObservable(options) {
+function newObservable(options) {
     var localforageInstance = this;
     setup$1(localforageInstance);
 
     var localforageObservablesList = options && options.changeDetection === false ? localforageInstance._observables.callDetection : localforageInstance._observables.changeDetection;
 
-    var observable = localforageObservable.factory(function (observer) {
+    var observable = newObservable.factory(function (observer) {
         var observableWrapper = new LocalForageObservableWrapper(options, observer);
         localforageObservablesList.push(observableWrapper);
 
-        return function () {
+        return function unsubscribeFn() {
             var index = localforageObservablesList.indexOf(observableWrapper);
             if (index >= 0) {
                 return localforageObservablesList.splice(index, 1);
@@ -416,15 +416,18 @@ function localforageObservable(options) {
 
 // In case the user want to override the used Observables
 // eg: with RxJS or ES-Observable
-localforageObservable.factory = function (subscribeFn) {
+newObservable.factory = function (subscribeFn) {
     return new Observable(subscribeFn);
 };
+
+// to avoid breaking changes
+var localforageObservable = newObservable;
 
 function extendPrototype(localforage$$1) {
     try {
         var localforagePrototype = Object.getPrototypeOf(localforage$$1);
         if (localforagePrototype) {
-            localforagePrototype.newObservable = localforageObservable;
+            localforagePrototype.newObservable = newObservable;
             localforagePrototype.configObservables = configObservables;
             return localforage$$1;
         }
@@ -434,6 +437,7 @@ function extendPrototype(localforage$$1) {
 
 var extendPrototypeResult = !!extendPrototype(localforage);
 
+exports.newObservable = newObservable;
 exports.localforageObservable = localforageObservable;
 exports.extendPrototype = extendPrototype;
 exports.extendPrototypeResult = extendPrototypeResult;
