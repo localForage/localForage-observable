@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <title>Simple localForage-observable example</title>
+  </head>
+  <body>
+    <script src="../node_modules/localforage/dist/localforage.js"></script>
+    <script src="../node_modules/zen-observable/zen-observable.js"></script>
+    <script src="../dist/localforage-observable.js"></script>
+    <script>
+      function runTests() {
+        console.clear();
+
+        localforage = localforage.createInstance();
+        localforage.setDriver([
+          localforage.INDEXEDDB,
+          localforage.WEBSQL,
+          localforage.LOCALSTORAGE
+        ])
+        .then(() => localforage.ready())
+        .then(() => localforage.clear())
+        .then(function() {
+          // localforageObservable.extendPrototype(localforage);
+
+          var observable = localforage.newObservable();
+
+          var observableLogs = [];
+
+          var subscription = observable.subscribe({
+            next: function(args) {
+              observableLogs.push(args.methodName + '(\'' + args.key + '\', ' + '\'' + args.newValue + '\')');
+              console.log('I observe everything', args);
+            },
+            error: function(err) {
+              console.log('Found an error!', err);
+            },
+            complete: function() {
+              console.log('Observable destroyed!');
+            }
+          });
+
+          localforage.setItem('test1', 'value1').then(function() {
+            console.log('setItem(\'test1\', \'value1\')');
+            return localforage.setItem('test2', 'value2');
+          }).then(function() {
+            console.log('setItem(\'test2\', \'value2\')');
+            return localforage.setItem('test2', 'value2b');
+          }).then(function() {
+            console.log('setItem(\'test2\', \'value2b\')');
+            return localforage.setItem('test2', 'value2b');
+          }).then(function() {
+            console.log('setItem(\'test2\', \'value2b\')');
+            return localforage.setItem('test3', 'value3');
+          }).then(function() {
+            console.log('setItem(\'test3\', \'value3\')');
+            subscription.unsubscribe();
+            return localforage.setItem('notObservedKey', 'notObservedValue');
+          }).then(function() {
+            console.log('setItem(\'notObservedKey\', \'notObservedValue\')');
+            return localforage.clear();
+          }).then(function() {
+            checkExpectations();
+          });
+
+          var expectedLogs = [
+            'setItem(\'test1\', \'value1\')',
+            'setItem(\'test2\', \'value2\')',
+            'setItem(\'test2\', \'value2b\')',
+            'setItem(\'test3\', \'value3\')'
+          ];
+
+          function checkExpectations() {
+            if (expectedLogs.length !== observableLogs.length) {
+              console.error('Tests: Unexpected log length');
+              return;
+            }
+            for (var i = 0; i < expectedLogs.length; i++) {
+              if (expectedLogs[i] !== observableLogs[i]) {
+                console.error('Tests: Unexpected logs');
+                return;
+              }
+            }
+            console.info('Tests: OK');
+            return true;
+          }
+        });
+      }
+
+      runTests();
+    </script>
+
+    <p>
+      Check your console log.
+    </p>
+  </body>
+</html>
