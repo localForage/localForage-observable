@@ -104,16 +104,6 @@ var observable = localforage.newObservable({
 });
 ```
 
-
-
-## Examples
-* [Simple example](http://codepen.io/thgreasi/pen/pyXbRg)
-* [Observing keys](http://codepen.io/thgreasi/pen/LNKZxQ)
-* [Observing methods](http://codepen.io/thgreasi/pen/wGLWgL)
-* [Simple RxJS 5 example](http://codepen.io/thgreasi/pen/wGLWmv)
-* [Cross-tab Observables](http://codepen.io/thgreasi/pen/NdObOW)
-* [Cross-tab Change Detection](http://codepen.io/thgreasi/pen/bgmBmb)
-
 ## API
 ```typescript
 interface LocalForageObservableOptions {
@@ -144,3 +134,34 @@ localforage.newObservable.factory = function (subscribeFn) {
     return Rx.Observable.create(subscribeFn);
 };
 ```
+
+## TypeScript
+
+First of all, [include `localforage` with an import statement appropriate for your configuration](https://github.com/localForage/localForage/blob/master/README.md#typescript) and import `localforage-observable` right after it.
+
+Normally, `localforage-observable` will extend the prototype of `locaforage` to include `newObservable()` etc, but unfortunately the typings can't be updated. As a result you should use the exported `extendPrototype()` method, which returns the provided localforage instance but with inherited typings that also include the extra methods of `localforage-observable`.
+
+```javascript
+import localForage from "localforage";
+// OR based on your configuration:
+// import * as localForage from "localforage";
+
+import { extendPrototype } from "localforage-observable";
+
+var localforage = extendPrototype(localForage);
+localforage.ready().then(() => {
+  // TypeScript will find `newObservable()` after the casting that `extendPrototype()` does
+  var observable = localforage.newObservable();
+});
+
+```
+
+
+## Examples
+* [Simple example](http://codepen.io/thgreasi/pen/pyXbRg)
+* [Observing keys](http://codepen.io/thgreasi/pen/LNKZxQ)
+* [Observing methods](http://codepen.io/thgreasi/pen/wGLWgL)
+* [Simple RxJS 5 example](http://codepen.io/thgreasi/pen/wGLWmv)
+* [Cross-tab Observables](http://codepen.io/thgreasi/pen/NdObOW)
+* [Cross-tab Change Detection](http://codepen.io/thgreasi/pen/bgmBmb)
+* [Exaple Ionic2/Angular2/Typescript project](https://github.com/thgreasi/localForage-cordovaSQLiteDriver-TestIonic2App)

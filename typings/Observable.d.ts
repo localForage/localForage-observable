@@ -1,9 +1,9 @@
-interface Observable {
+interface Observable<T> {
 
-    constructor(subscriber : SubscriberFunction);
+    constructor(subscriber : SubscriberFunction<T>): Observable<T>;
 
     // Subscribes to the sequence
-    subscribe(observer : Observer) : Subscription;
+    subscribe(observer : Observer<T>) : Subscription;
 
     // // Subscribes to the sequence with a callback, returning a promise
     // forEach(onNext : any => any) : Promise;
@@ -31,29 +31,29 @@ interface Subscription {
 declare function SubscriberFunctionResultFn() : void;
 
 // function SubscriberFunction(observer: SubscriptionObserver): (void => void)|Subscription;
-interface SubscriberFunction { (observer: SubscriptionObserver): { (): void } | Subscription }
+interface SubscriberFunction<T> { (observer: SubscriptionObserver<T>): { (): void } | Subscription }
 
 
-interface Observer {
+interface Observer<T> {
 
     // Receives the next value in the sequence
-    next(value);
+    next?: (value: T) => void;
 
     // Receives the sequence error
-    error(errorValue);
+    error?: (errorValue?: any) => void;
 
     // Receives the sequence completion value
-    complete(completeValue);
+    complete?: () => void;
 }
 
-interface SubscriptionObserver {
+interface SubscriptionObserver<T> {
 
     // Sends the next value in the sequence
-    next(value);
+    next(value: T): void;
 
     // Sends the sequence error
-    error(errorValue);
+    error(errorValue: any): void;
 
     // Sends the sequence completion value
-    complete(completeValue);
+    complete(completeValue: void): void;
 }
