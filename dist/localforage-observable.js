@@ -414,6 +414,46 @@ function newObservable(options) {
     return observable;
 }
 
+function getItemObservable(key, options) {
+    var localforageInstance = this;
+
+    options = options || {};
+    options.key = key;
+
+    var observable = newObservable.factory(function (observer) {
+        var getItemSettled = localforageInstance.getItem(key).then(function (value) {
+            observer.next(value);
+        }).catch(function (errorValue) {
+            return observer.error(errorValue);
+        });
+
+        var changeObservable = localforageInstance.newObservable(options);
+        var changeObservableSubscription = changeObservable.subscribe({
+            next: function next(changeObject) {
+                getItemSettled.then(function () {
+                    observer.next(changeObject.newValue);
+                });
+            },
+            error: function error(errorValue) {
+                getItemSettled.then(function () {
+                    observer.error(errorValue);
+                });
+            },
+            complete: function complete() {
+                getItemSettled.then(function () {
+                    observer.complete();
+                });
+            }
+        });
+
+        return function () {
+            changeObservableSubscription.unsubscribe();
+        };
+    });
+
+    return observable;
+}
+
 // In case the user want to override the used Observables
 // eg: with RxJS or ES-Observable
 newObservable.factory = function (subscribeFn) {
@@ -428,6 +468,7 @@ function extendPrototype(localforage$$1) {
         var localforagePrototype = Object.getPrototypeOf(localforage$$1);
         if (localforagePrototype) {
             localforagePrototype.newObservable = newObservable;
+            localforagePrototype.getItemObservable = getItemObservable;
             localforagePrototype.configObservables = configObservables;
             return localforage$$1;
         }
@@ -438,6 +479,7 @@ function extendPrototype(localforage$$1) {
 var extendPrototypeResult = !!extendPrototype(localforage);
 
 exports.newObservable = newObservable;
+exports.getItemObservable = getItemObservable;
 exports.localforageObservable = localforageObservable;
 exports.extendPrototype = extendPrototype;
 exports.extendPrototypeResult = extendPrototypeResult;

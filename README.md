@@ -12,7 +12,13 @@ Adds observables to [localForage](https://github.com/mozilla/localForage), provi
 ## Usage
 Currently localForage Observables should only be created after `localforage.ready()`, so that localForage completes the initialization of the requested (or best matching) driver. Moreover, Observables will stop working in case you change the driver in use, after their creation.
 
-### Observe everything
+### Observe for changes with `newObservable()`
+
+Creates an observable and subscribes to DB changes.
+With this method Subscribers get notified with a `LocalForageObservableChange` object.
+This method can be invoked with a `LocalForageObservableOptions` object as optional argument.
+
+#### Observe everything
 ```js
 var observable = localforage.newObservable();
 var subscription = observable.subscribe({
@@ -28,7 +34,7 @@ var subscription = observable.subscribe({
 });
 ```
 
-### Observe a specific key
+#### Observe a specific key
 ```js
 var observable = localforage.newObservable({
     key: 'testKey'
@@ -40,7 +46,7 @@ var subscription = observable.subscribe({
 });
 ```
 
-### Observe specific method calls
+#### Observe specific method calls
 ```js
 var observable = localforage.newObservable({
     // setItem: false,
@@ -50,6 +56,21 @@ var observable = localforage.newObservable({
 var subscription = observable.subscribe({
   next: function(args) {
     console.log(args.methodName + ' was called!');
+  }
+});
+```
+
+### Get a "live" Observable of a DB Item Value with `getItemObservable(key)`
+
+Creates an observable for a specific key that returns the current DB value and every new saved value.
+With this method Subscribers receive the initial and ongoing DB values for a specific key as it changes.
+This method can be invoked with a `LocalForageObservableOptions` object as extra optional argument.
+
+```js
+var useProfileObservable = localforage.getItemObservable('UserProfile');
+useProfileSubscription = useProfileObservable.subscribe({
+  next: function(value) {
+    setCurrentUserNameToPage(value.username);
   }
 });
 ```
@@ -69,7 +90,7 @@ var observable = localforage.newObservable({
 ```
 
 ## Cross-Tab Observables [#5](https://github.com/localForage/localForage-observable/issues/5)
-Cross-tab event emition, observation and value change detection **are disabled by default**.
+Cross-tab event emission, observation and value change detection **are disabled by default**.
 
 In order to enable it, you have to:  
 1) call the `configObservables()` method to start emmiting cross-tab events:
@@ -128,7 +149,7 @@ interface LocalForageObservableChange {
 ```
 
 ## Using a different Observable library
-You can actually use any library compatible with the [ES Observable spec proposal](https://github.com/zenparsing/es-observable). For example, in order to make localForage-observable use the Observables fo the RxJS, all you have to do is change the provided Observable Factory method:
+You can actually use any library compatible with the [ES Observable spec proposal](https://github.com/zenparsing/es-observable). For example, in order to make localForage-observable use the Observables of the RxJS, all you have to do is change the provided Observable Factory method:
 ```js
 localforage.newObservable.factory = function (subscribeFn) {
     return Rx.Observable.create(subscribeFn);
@@ -159,6 +180,7 @@ localforage.ready().then(() => {
 
 ## Examples
 * [Simple example](http://codepen.io/thgreasi/pen/pyXbRg)
+* [Simple getItemObservable example](http://codepen.io/thgreasi/pen/dvmRoq)
 * [Observing keys](http://codepen.io/thgreasi/pen/LNKZxQ)
 * [Observing methods](http://codepen.io/thgreasi/pen/wGLWgL)
 * [Simple RxJS 5 example](http://codepen.io/thgreasi/pen/wGLWmv)

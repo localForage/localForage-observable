@@ -31,7 +31,9 @@ interface Subscription {
 declare function SubscriberFunctionResultFn() : void;
 
 // function SubscriberFunction(observer: SubscriptionObserver): (void => void)|Subscription;
-interface SubscriberFunction<T> { (observer: SubscriptionObserver<T>): { (): void } | Subscription }
+interface SubscriberFunction<T> {
+    (observer: SubscriptionObserver<T>): { (): void } | Subscription;
+}
 
 
 interface Observer<T> {
