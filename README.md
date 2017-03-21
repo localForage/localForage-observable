@@ -69,7 +69,7 @@ var observable = localforage.newObservable({
 ```
 
 ## Cross-Tab Observables [#5](https://github.com/localForage/localForage-observable/issues/5)
-Cross-tab event emition, observation and value change detection **are disabled by default**.
+Cross-tab event emission, observation and value change detection **are disabled by default**.
 
 In order to enable it, you have to:  
 1) call the `configObservables()` method to start emmiting cross-tab events:
@@ -128,7 +128,7 @@ interface LocalForageObservableChange {
 ```
 
 ## Using a different Observable library
-You can actually use any library compatible with the [ES Observable spec proposal](https://github.com/zenparsing/es-observable). For example, in order to make localForage-observable use the Observables fo the RxJS, all you have to do is change the provided Observable Factory method:
+You can actually use any library compatible with the [ES Observable spec proposal](https://github.com/zenparsing/es-observable). For example, in order to make localForage-observable use the Observables of the RxJS, all you have to do is change the provided Observable Factory method:
 ```js
 localforage.newObservable.factory = function (subscribeFn) {
     return Rx.Observable.create(subscribeFn);
