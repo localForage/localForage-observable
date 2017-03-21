@@ -4,9 +4,6 @@
 /// <reference path="Observable.d.ts" />
 
 interface LocalForageNewObservableFunc {
-
-}
-interface LocalForageDriverSupportFunc {
     (options?: LocalForageObservableOptions): Observable<LocalForageObservableChange>;
 
     factory(subscribeFn: SubscriberFunction<LocalForageObservableChange>): void;
@@ -15,7 +12,7 @@ interface LocalForageDriverSupportFunc {
 interface LocalForageWithObservableMethods extends LocalForage {
     // newObservable(options?: LocalForageObservableOptions)
     //     : Observable<LocalForageObservableChange>;
-    newObservable: LocalForageDriverSupportFunc;
+    newObservable: LocalForageNewObservableFunc;
 
     configObservables(options: LocalForageObservableOptions): void;
 }
