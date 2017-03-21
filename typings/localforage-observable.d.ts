@@ -14,6 +14,8 @@ interface LocalForageWithObservableMethods extends LocalForage {
     //     : Observable<LocalForageObservableChange>;
     newObservable: LocalForageNewObservableFunc;
 
+    getItemObservable<T>(key: String, options?: LocalForageObservableOptions): Observable<T>;
+
     configObservables(options: LocalForageObservableOptions): void;
 }
 
