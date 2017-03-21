@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <title>localForage-observable getItemObservable example</title>
+  </head>
+  <body>
+    <script src="../node_modules/localforage/dist/localforage.js"></script>
+    <script src="../node_modules/zen-observable/zen-observable.js"></script>
+    <script src="../dist/localforage-observable.js"></script>
+    <script>
+      localforage.ready().then(function() {
+        localforage.clear();
+      }).then(function() {
+
+        var useProfileObservable = localforage.getItemObservable('UserProfile');
+        var useProfileSubscription;
+
+        var observableLogs = [];
+
+        var initialValuePromiseResolve;
+        var initialValuePromise = new Promise(function(resolve) {
+          initialValuePromiseResolve = resolve;
+        });
+
+        // add an initial value
+        localforage.clear().then(function() {
+          return localforage.setItem('UserProfile', {
+            UserName: 'user1',
+            Password: '0000'
+          });
+        })
+        .then(function() {
+          useProfileSubscription = useProfileObservable.subscribe({
+            next: function(value) {
+              observableLogs.push(JSON.stringify(value));
+              console.log('UserProfile changed to ', value);
+            }
+          });
+        }).then(function() {
+          return localforage.setItem('UserProfile', {
+            UserName: 'user1',
+            Password: '12345'
+          });
+        }).then(function(){
+          return localforage.setItem('UserProfile', {
+            UserName: 'user1',
+            Password: '67890'
+          });
+        }).then(function(){
+          // this should not notify the subscribers
+          return localforage.setItem('UserProfile', {
+            UserName: 'user1',
+            Password: '67890'
+          });
+        }).then(function() {
+          return localforage.setItem('test1', 'value1');
+        }).then(function() {
+          return localforage.setItem('test2', 'value2');
+        }).then(function() {
+          return localforage.setItem('test2', 'value2b');
+        }).then(function() {
+          // this should not notify the subscribers
+          return localforage.setItem('test2', 'value2b');
+        }).then(function() {
+          return localforage.setItem('UserProfile', {
+            UserName: 'user1',
+            Password: '67891'
+          });
+        }).then(function() {
+          return localforage.setItem('test3', 'value3');
+        }).then(function() {
+          useProfileSubscription.unsubscribe();
+          // this should not notify the subscribers
+          return localforage.setItem('UserProfile', {
+            UserName: 'user1',
+            Password: '67899'
+          });
+        }).then(function() {
+          return localforage.clear();
+        }).then(function() {
+          checkExpectations();
+        });
+
+        var expectedLogs = [
+          '{"UserName":"user1","Password":"0000"}',
+          '{"UserName":"user1","Password":"12345"}',
+          '{"UserName":"user1","Password":"67890"}',
+          '{"UserName":"user1","Password":"67891"}'
+        ];
+
+        function checkExpectations() {
+          if (expectedLogs.length !== observableLogs.length) {
+            console.error('Tests: Unexpected log length');
+            return;
+          }
+          for (var i = 0; i < expectedLogs.length; i++) {
+            if (expectedLogs[i] !== observableLogs[i]) {
+              console.error('Tests: Unexpected logs');
+              return;
+            }
+          }
+          console.info('Tests: OK');
+          return true;
+        }
+      });
+    </script>
+
+    <p>
+      Check your console log.
+    </p>
+  </body>
+</html>
