@@ -52,6 +52,17 @@ namespace LocalForageObservableTest {
     }
 
     {
+        let observable:Observable<string> = localforage.getItemObservable<string>('test');
+
+        let subscription: Subscription = observable.subscribe({
+          next: (value: string) => { },
+          error: (err: any) => { },
+          complete: () => { }
+        });
+        subscription.unsubscribe();
+    }
+
+    {
         localforage.newObservable.factory = function (subscribeFn: SubscriberFunction<LocalForageObservableChange>) {
             return RxObservable.create(subscribeFn);
         };
