@@ -384,7 +384,7 @@ function configObservables(options) {
         obs.crossTabObserver = null;
     }
 
-    obs = options.crossTabChangeDetection;
+    obs.crossTabChangeDetection = options.crossTabChangeDetection;
 }
 
 function newObservable(options) {
