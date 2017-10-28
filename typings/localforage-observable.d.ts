@@ -9,15 +9,17 @@ interface LocalForageNewObservableFunc {
     factory(subscribeFn: SubscriberFunction<LocalForageObservableChange>): void;
 }
 
-interface LocalForageWithObservableMethods extends LocalForage {
-    // newObservable(options?: LocalForageObservableOptions)
-    //     : Observable<LocalForageObservableChange>;
+interface ILocalForageWithObservableMethods {
     newObservable: LocalForageNewObservableFunc;
 
     getItemObservable<T>(key: String, options?: LocalForageObservableOptions): Observable<T>;
 
     configObservables(options: LocalForageObservableOptions): void;
 }
+
+interface LocalForage extends ILocalForageWithObservableMethods { }
+
+interface LocalForageWithObservableMethods extends LocalForage { }
 
 declare module "localforage-observable" {
     export function localforageWithObservableMethods(options: LocalForageObservableOptions)
