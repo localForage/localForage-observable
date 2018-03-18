@@ -70,6 +70,8 @@
         }).then(function() {
           return localforage.setItem('test3', 'value3');
         }).then(function() {
+          return localforage.clear();
+        }).then(function() {
           useProfileSubscription.unsubscribe();
           // this should not notify the subscribers
           return localforage.setItem('UserProfile', {
@@ -91,12 +93,12 @@
 
         function checkExpectations() {
           if (expectedLogs.length !== observableLogs.length) {
-            console.error('Tests: Unexpected log length');
+            console.error('Tests: Unexpected log length', expectedLogs, observableLogs);
             return;
           }
           for (var i = 0; i < expectedLogs.length; i++) {
             if (expectedLogs[i] !== observableLogs[i]) {
-              console.error('Tests: Unexpected logs');
+              console.error('Tests: Unexpected logs', expectedLogs, observableLogs);
               return;
             }
           }

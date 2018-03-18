@@ -10,14 +10,37 @@
     <script src="../dist/localforage-observable.js"></script>
     <script>
       localforage.ready(function() {
-        var methodCallObservable = localforage.newObservable({
+        var setItemCallObservable = localforage.newObservable({
           setItem: true,
           changeDetection: false
         });
 
-        var methodCallSubscription = methodCallObservable.subscribe({
+        var observableLogs = [];
+
+        var setItemSubscription = setItemCallObservable.subscribe({
           next: function(args) {
-            console.log('Method ' + args.methodName + ' was called.', args );
+            if (args.key) {
+              observableLogs.push(`${args.methodName}('${args.key}', '${args.newValue}')`);
+            } else {
+              observableLogs.push(`${args.methodName}()`);
+            }
+            console.log(`Method ${args.methodName} was called.`, args );
+          }
+        });
+
+        var clearCallObservable = localforage.newObservable({
+          clear: true,
+          changeDetection: false
+        });
+
+        var clearSubscription = clearCallObservable.subscribe({
+          next: function(args) {
+            if (args.key) {
+              observableLogs.push(`${args.methodName}('${args.key}', '${args.newValue}')`);
+            } else {
+              observableLogs.push(`${args.methodName}()`);
+            }
+            console.log(`Method ${args.methodName} was called.`, args );
           }
         });
 
@@ -50,8 +73,37 @@
         }).then(function() {
           return localforage.clear();
         }).then(function() {
-          methodCallSubscription.unsubscribe();
+          setItemSubscription.unsubscribe();
+          clearSubscription.unsubscribe();
+          checkExpectations();
         });
+
+        var expectedLogs = [
+          "setItem('UserProfile', '[object Object]')",
+          "setItem('UserProfile', '[object Object]')",
+          "setItem('UserProfile', '[object Object]')",
+          "setItem('test1', 'value1')",
+          "setItem('test2', 'value2')",
+          "setItem('test2', 'value2b')",
+          "setItem('test2', 'value2b')",
+          "setItem('test3', 'value3')",
+          'clear()'
+        ];
+
+        function checkExpectations() {
+          if (expectedLogs.length !== observableLogs.length) {
+            console.error('Tests: Unexpected log length', expectedLogs, observableLogs);
+            return;
+          }
+          for (var i = 0; i < expectedLogs.length; i++) {
+            if (expectedLogs[i] !== observableLogs[i]) {
+              console.error('Tests: Unexpected logs', expectedLogs, observableLogs);
+              return;
+            }
+          }
+          console.info('Tests: OK');
+          return true;
+        }
       });
     </script>
 

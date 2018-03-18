@@ -23,7 +23,7 @@
         var subscription = observable.subscribe({
           next: function(args) {
             if (args.crossTabNotification) {
-              observableLogs.push(args.methodName + '(\'' + args.key + '\')');
+              observableLogs.push(`${args.methodName}('${args.key}')`);
               if (expectedLogs.length === observableLogs.length) {
                 setTimeout(function() {
                   checkExpectations();
@@ -43,27 +43,27 @@
         });
 
         localforage.setItem('test1', 'value1').then(function() {
-          console.log('setItem(\'test1\', \'value1\')');
+          console.log("setItem('test1', 'value1')");
           return localforage.setItem('test2', 'value2');
         }).then(function() {
-          console.log('setItem(\'test2\', \'value2\')');
+          console.log("setItem('test2', 'value2')");
           return localforage.setItem('test2', 'value2b');
         }).then(function() {
-          console.log('setItem(\'test2\', \'value2b\')');
+          console.log("setItem('test2', 'value2b')");
           return localforage.setItem('test2', 'value2b');
         }).then(function() {
-          console.log('setItem(\'test2\', \'value2b\')');
+          console.log("setItem('test2', 'value2b')");
           return localforage.setItem('test3', 'value3');
         }).then(function() {
-          console.log('setItem(\'test3\', \'value3\')');
+          console.log("setItem('test3', 'value3')");
         });
 
         var expectedLogs = [
-          'setItem(\'test1\')',
-          'setItem(\'test2\')',
-          'setItem(\'test2\')',
-          'setItem(\'test2\')',
-          'setItem(\'test3\')'
+          "setItem('test1')",
+          "setItem('test2')",
+          "setItem('test2')",
+          "setItem('test2')",
+          "setItem('test3')"
         ];
 
         function checkExpectations() {
