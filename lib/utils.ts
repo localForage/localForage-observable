@@ -1,46 +1,63 @@
-export function getDriverPromise(localForageInstance, driverName) {
-    getDriverPromise.result = getDriverPromise.result || {};
-    if (getDriverPromise.result[driverName]) {
-        return getDriverPromise.result[driverName];
+const getDriverPromiseResult: {
+    [driver: string]: Promise<LocalForageDriver>;
+} = {};
+
+export function getDriverPromise(
+    localForageInstance: LocalForage,
+    driverName: string,
+) {
+    if (getDriverPromiseResult[driverName]) {
+        return getDriverPromiseResult[driverName];
     }
-    if (!localForageInstance || typeof localForageInstance.getDriver !== 'function') {
-        return Promise.reject(new Error(
-            'localforage.getDriver() was not available! ' +
-            'localforage-observable requires localforage v1.4+'));
+    if (
+        !localForageInstance ||
+        typeof localForageInstance.getDriver !== 'function'
+    ) {
+        return Promise.reject(
+            new Error(
+                'localforage.getDriver() was not available! ' +
+                    'localforage-observable requires localforage v1.4+',
+            ),
+        );
     }
-    getDriverPromise.result[driverName] = localForageInstance.getDriver(driverName);
-    return getDriverPromise.result[driverName];
+    getDriverPromiseResult[driverName] = localForageInstance.getDriver(
+        driverName,
+    );
+    return getDriverPromiseResult[driverName];
 }
 
 // thanks AngularJS
-function isDate(value) {
+function isDate(value: any) {
     return toString.call(value) === '[object Date]';
 }
 
-function isFunction(value) {
+function isFunction(value: any) {
     return typeof value === 'function';
 }
 
-var isArray = (function() {
+const isArray = (function() {
     if (!isFunction(Array.isArray)) {
-        return function(value) {
+        return function(value: any) {
             return toString.call(value) === '[object Array]';
         };
     }
     return Array.isArray;
 })();
 
-function isRegExp(value) {
+function isRegExp(value: any) {
     return toString.call(value) === '[object RegExp]';
 }
 
-export function equals(o1, o2) {
+export function equals(o1: any, o2: any) {
+    /* tslint:disable */
     if (o1 === o2) return true;
     if (o1 === null || o2 === null) return false;
     if (o1 !== o1 && o2 !== o2) return true; // NaN === NaN
     var t1 = typeof o1,
         t2 = typeof o2,
-        length, key, keySet;
+        length,
+        key,
+        keySet: { [key: string]: any };
     if (t1 == t2) {
         if (t1 == 'object') {
             if (isArray(o1)) {
@@ -53,7 +70,10 @@ export function equals(o1, o2) {
                 }
             } else if (isDate(o1)) {
                 if (!isDate(o2)) return false;
-                return (isNaN(o1.getTime()) && isNaN(o2.getTime())) || (o1.getTime() === o2.getTime());
+                return (
+                    (isNaN(o1.getTime()) && isNaN(o2.getTime())) ||
+                    o1.getTime() === o2.getTime()
+                );
             } else if (isRegExp(o1) && isRegExp(o2)) {
                 return o1.toString() == o2.toString();
             } else {
@@ -65,14 +85,18 @@ export function equals(o1, o2) {
                     keySet[key] = true;
                 }
                 for (key in o2) {
-                    if (!keySet.hasOwnProperty(key) &&
+                    if (
+                        !keySet.hasOwnProperty(key) &&
                         key.charAt(0) !== '$' &&
                         o2[key] !== undefined &&
-                        !isFunction(o2[key])) return false;
+                        !isFunction(o2[key])
+                    )
+                        return false;
                 }
                 return true;
             }
         }
     }
     return false;
+    /* tslint:enable */
 }

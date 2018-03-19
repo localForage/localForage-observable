@@ -9,7 +9,7 @@
 
 interface LocalForageObservableChange {
     key: string;
-    methodName: string;
+    methodName: keyof LocalForageObservableMethodOptions;
     oldValue: any;
     newValue: any;
     valueChange?: boolean;

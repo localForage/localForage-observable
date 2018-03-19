@@ -5,11 +5,14 @@
 // LocalForageObservableOptions.prototype.clear = true;
 // LocalForageObservableOptions.prototype.changeDetection = true;
 
-interface LocalForageObservableOptions {
-    key?: string;
+interface LocalForageObservableMethodOptions {
     setItem?: boolean;
     removeItem?: boolean;
     clear?: boolean;
+}
+
+interface LocalForageObservableOptions extends LocalForageObservableMethodOptions {
+    key?: string;
     changeDetection?: boolean; // default true
     crossTabNotification?: boolean; // default false
     crossTabChangeDetection?: boolean; // default false

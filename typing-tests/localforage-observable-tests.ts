@@ -7,7 +7,7 @@ import { extendPrototype } from 'localforage-observable';
 declare let localforage: LocalForage;
 
 declare let RxObservable: {
-  create(subscribeFn: SubscriberFunction<LocalForageObservableChange>): Observable<LocalForageObservableChange>
+  create<T>(subscribeFn: SubscriberFunction<T>): Observable<T>
 };
 
 namespace LocalForageObservableTest {
@@ -65,7 +65,7 @@ namespace LocalForageObservableTest {
     }
 
     {
-        localforage.newObservable.factory = function (subscribeFn: SubscriberFunction<LocalForageObservableChange>) {
+        localforage.newObservable.factory = function<T>(subscribeFn: SubscriberFunction<T>) {
             return RxObservable.create(subscribeFn);
         };
     }

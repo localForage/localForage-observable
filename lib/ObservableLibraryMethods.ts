@@ -1,4 +1,6 @@
-export var ObservableLibraryMethods = [
+export const ObservableLibraryMethods: Array<
+    keyof LocalForageObservableMethodOptions
+> = [
     'clear',
     // 'getItem',
     // 'iterate',
@@ -6,5 +8,5 @@ export var ObservableLibraryMethods = [
     // 'keys',
     // 'length',
     'removeItem',
-    'setItem'
+    'setItem',
 ];
