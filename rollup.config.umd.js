@@ -16,7 +16,6 @@ export default {
             removeComments: true,
             sourceMap: true,
             strictNullChecks: true,
-            moduleResolution: 'node',
             outDir: 'dist',
         }),
     ],
