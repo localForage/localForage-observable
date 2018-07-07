@@ -15,8 +15,7 @@ export default {
             preserveConstEnums: true,
             removeComments: true,
             sourceMap: true,
-            strictNullChecks: true,
-            outDir: 'dist',
+            strictNullChecks: true
         }),
     ],
     external: ['localforage'],

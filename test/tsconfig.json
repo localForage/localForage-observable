@@ -1,18 +1,22 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "module": "es2015",
-    "target": "es2015",
+    "lib": [
+      "dom",
+      "es2015"
+    ],
+    "module": "cjs",
+    "target": "es5",
     "declaration": false,
     "noImplicitAny": true,
     "preserveConstEnums": true,
     "removeComments": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "outDir": "dist"
+    "outDir": "../build/test"
   },
   "include": [
-    "lib/**/*.ts",
-    "typings/**/*.d.ts"
+    "**/*.ts",
+    "../node_modules/@resin.io/**/*.d.ts"
   ]
 }
