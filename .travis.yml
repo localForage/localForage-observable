@@ -1,4 +1,6 @@
+sudo: required
+addons:
+  chrome: stable
 language: node_js
 node_js:
-  - "4.0"
-  - "5.0"
+- '6'

@@ -6,18 +6,23 @@
   </head>
   <body>
     <script src="../node_modules/localforage/dist/localforage.js"></script>
-    <script src="../node_modules/@reactivex/rxjs/dist/global/Rx.min.js"></script>
+    <script src="../node_modules/zen-observable/zen-observable.js"></script>
     <script src="../dist/localforage-observable.js"></script>
     <script>
       localforage.ready(function() {
-        localforage.newObservable.factory = function (subscribeFn) {
-            return Rx.Observable.create(subscribeFn);
-        };
+        var observable = localforage.newObservable({
+          changeDetection: false
+        });
 
-        var observable = localforage.newObservable();
+        var observableLogs = [];
 
         var subscription = observable.subscribe({
           next: function(args) {
+            if (args.key) {
+              observableLogs.push(`${args.methodName}('${args.key}', '${args.newValue}')`);
+            } else {
+              observableLogs.push(`${args.methodName}()`);
+            }
             console.log('I observe everything', args);
           },
           error: function(err) {
@@ -42,12 +47,41 @@
           return localforage.setItem('test3', 'value3');
         }).then(function() {
           console.log("setItem('test3', 'value3')");
+          return localforage.clear();
+        }).then(function() {
+          console.log('clear()');
           subscription.unsubscribe();
           return localforage.setItem('notObservedKey', 'notObservedValue');
         }).then(function() {
           console.log("setItem('notObservedKey', 'notObservedValue')");
           return localforage.clear();
+        }).then(function() {
+          checkExpectations();
         });
+
+        var expectedLogs = [
+          "setItem('test1', 'value1')",
+          "setItem('test2', 'value2')",
+          "setItem('test2', 'value2b')",
+          "setItem('test2', 'value2b')",
+          "setItem('test3', 'value3')",
+          'clear()'
+        ];
+
+        function checkExpectations() {
+          if (expectedLogs.length !== observableLogs.length) {
+            console.error('Tests: Unexpected log length', expectedLogs, observableLogs);
+            return;
+          }
+          for (var i = 0; i < expectedLogs.length; i++) {
+            if (expectedLogs[i] !== observableLogs[i]) {
+              console.error('Tests: Unexpected logs', expectedLogs, observableLogs);
+              return;
+            }
+          }
+          console.info('Tests: OK');
+          return true;
+        }
       });
     </script>
 

@@ -1,6 +1,15 @@
-import config from './rollup.config';
+import typescript from 'rollup-plugin-typescript2';
+let pkg = require('./package.json');
 
-config.format = 'es';
-config.dest = 'dist/localforage-observable.es6.js';
-
-export default config;
+export default {
+    input: 'lib/index.ts',
+    plugins: [typescript()],
+    external: ['localforage'],
+    output: [
+        {
+            file: pkg['jsnext:main'],
+            format: 'es',
+            // sourceMap: true
+        },
+    ],
+};

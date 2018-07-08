@@ -1,4 +1,5 @@
-build
+.rpt2_cache
 bower_components
-node_modules
+build
 components
+node_modules

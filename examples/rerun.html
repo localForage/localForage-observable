@@ -29,7 +29,7 @@
 
           var subscription = observable.subscribe({
             next: function(args) {
-              observableLogs.push(args.methodName + '(\'' + args.key + '\', ' + '\'' + args.newValue + '\')');
+              observableLogs.push(`${args.methodName}('${args.key}', '${args.newValue}')`);
               console.log('I observe everything', args);
             },
             error: function(err) {
@@ -41,33 +41,36 @@
           });
 
           localforage.setItem('test1', 'value1').then(function() {
-            console.log('setItem(\'test1\', \'value1\')');
+            console.log("setItem('test1', 'value1')");
             return localforage.setItem('test2', 'value2');
           }).then(function() {
-            console.log('setItem(\'test2\', \'value2\')');
+            console.log("setItem('test2', 'value2')");
             return localforage.setItem('test2', 'value2b');
           }).then(function() {
-            console.log('setItem(\'test2\', \'value2b\')');
+            console.log("setItem('test2', 'value2b')");
             return localforage.setItem('test2', 'value2b');
           }).then(function() {
-            console.log('setItem(\'test2\', \'value2b\')');
+            console.log("setItem('test2', 'value2b')");
             return localforage.setItem('test3', 'value3');
           }).then(function() {
-            console.log('setItem(\'test3\', \'value3\')');
+            console.log("setItem('test3', 'value3')");
+            return localforage.clear();
+          }).then(function() {
+            console.log('clear()');
             subscription.unsubscribe();
             return localforage.setItem('notObservedKey', 'notObservedValue');
           }).then(function() {
-            console.log('setItem(\'notObservedKey\', \'notObservedValue\')');
+            console.log("setItem('notObservedKey', 'notObservedValue')");
             return localforage.clear();
           }).then(function() {
             checkExpectations();
           });
 
           var expectedLogs = [
-            'setItem(\'test1\', \'value1\')',
-            'setItem(\'test2\', \'value2\')',
-            'setItem(\'test2\', \'value2b\')',
-            'setItem(\'test3\', \'value3\')'
+            "setItem('test1', 'value1')",
+            "setItem('test2', 'value2')",
+            "setItem('test2', 'value2b')",
+            "setItem('test3', 'value3')"
           ];
 
           function checkExpectations() {

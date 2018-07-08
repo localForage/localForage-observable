@@ -4,15 +4,15 @@
 /// <reference path="Observable.d.ts" />
 
 interface LocalForageNewObservableFunc {
-    (options?: LocalForageObservableOptions): Observable<LocalForageObservableChange>;
+    (this: LocalForageWithObservableMethods, options?: LocalForageObservableOptions): Observable<LocalForageObservableChange>;
 
-    factory(subscribeFn: SubscriberFunction<LocalForageObservableChange>): void;
+    factory<T>(subscribeFn: SubscriberFunction<T>): Observable<T>;
 }
 
 interface ILocalForageWithObservableMethods {
     newObservable: LocalForageNewObservableFunc;
 
-    getItemObservable<T>(key: String, options?: LocalForageObservableOptions): Observable<T>;
+    getItemObservable<T>(key: string, options?: LocalForageObservableOptions): Observable<T>;
 
     configObservables(options: LocalForageObservableOptions): void;
 }
@@ -21,12 +21,12 @@ interface LocalForage extends ILocalForageWithObservableMethods { }
 
 interface LocalForageWithObservableMethods extends LocalForage { }
 
-declare module "localforage-observable" {
+declare module 'localforage-observable' {
     export function localforageWithObservableMethods(options: LocalForageObservableOptions)
         : Observable<LocalForageObservableChange>;
 
     export function extendPrototype(localforage: LocalForage)
         : LocalForageWithObservableMethods;
 
-    export var extendPrototypeResult: boolean;
+    export const extendPrototypeResult: boolean;
 }

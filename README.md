@@ -1,4 +1,5 @@
 # localForage-observable
+[![Build Status](https://travis-ci.org/localForage/localForage-observable.svg?branch=master)](https://travis-ci.org/localForage/localForage-observable)
 [![npm](https://img.shields.io/npm/dm/localforage-observable.svg)](https://www.npmjs.com/package/localforage-observable)  
 Adds observables to [localForage](https://github.com/mozilla/localForage), providing a way to get notified whenever:
 * a method that affects the database is invoked
