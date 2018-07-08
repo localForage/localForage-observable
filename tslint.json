@@ -1,5 +1,8 @@
 {
-  "extends": "tslint:recommended",
+  "extends": [
+    "tslint:recommended",
+    "tslint-no-unused-expression-chai"
+  ],
   "rules": {
     "arrow-parens": false,
     "indent": [true, "spaces", 4],
@@ -19,6 +22,7 @@
     "no-namespace": [true, "allow-declarations"],
     "no-shadowed-variable": false,
     "no-string-literal": false,
+    "no-unused-expression-chai": false,
     "no-var-requires": true,
     "object-literal-key-quotes": [true, "as-needed"],
     "object-literal-sort-keys": false,
