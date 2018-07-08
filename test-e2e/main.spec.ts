@@ -40,24 +40,12 @@ describe('Localforage Observable', function() {
     const runTestScenario = () =>
         localforage
             .setItem('test1', 'value1')
-            .then(function() {
-                return localforage.setItem('test2', 'value2');
-            })
-            .then(function() {
-                return localforage.setItem('test2', 'value2b');
-            })
-            .then(function() {
-                return localforage.setItem('test2', 'value2b');
-            })
-            .then(function() {
-                return localforage.setItem('test3', 'value3');
-            })
-            .then(function() {
-                return localforage.clear();
-            })
-            .then(function() {
-                return localforage.clear();
-            });
+            .then(() => localforage.setItem('test2', 'value2'))
+            .then(() => localforage.setItem('test2', 'value2b'))
+            .then(() => localforage.setItem('test2', 'value2b'))
+            .then(() => localforage.setItem('test3', 'value3'))
+            .then(() => localforage.clear())
+            .then(() => localforage.clear());
 
     describe('Given a simple observable & subscription w/ changeDetection', function() {
         beforeEach(function() {
