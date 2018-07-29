@@ -45,6 +45,8 @@ describe('Observing methods', function() {
             // this should not notify subscribers w/ changeDetection
             .then(() => localforage.setItem('test2', 'value2b'))
             .then(() => localforage.setItem('test3', 'value3'))
+            .then(() => localforage.removeItem('test3'))
+            .then(() => localforage.removeItem('test3'))
             .then(() => localforage.clear())
             // this should not notify subscribers w/ changeDetection
             .then(() => localforage.clear());

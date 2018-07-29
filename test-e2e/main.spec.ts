@@ -44,6 +44,8 @@ describe('Localforage Observable', function() {
             .then(() => localforage.setItem('test2', 'value2b'))
             .then(() => localforage.setItem('test2', 'value2b'))
             .then(() => localforage.setItem('test3', 'value3'))
+            .then(() => localforage.removeItem('test3'))
+            .then(() => localforage.removeItem('test3'))
             .then(() => localforage.clear())
             .then(() => localforage.clear());
 
@@ -70,16 +72,14 @@ describe('Localforage Observable', function() {
 
         it('should observe properly', function() {
             return runTestScenario()
-                .then(function() {
-                    subscription.unsubscribe();
-                    return localforage.clear();
-                })
+                .then(() => subscription.unsubscribe())
                 .then(function() {
                     m.chai.expect(observableLogs).to.deep.equal([
                         "setItem('test1', 'value1')",
                         "setItem('test2', 'value2')",
                         "setItem('test2', 'value2b')",
                         "setItem('test3', 'value3')",
+                        "removeItem('test3') => null",
                         // TODO: fix me
                         // 'clear()',
                     ]);
@@ -90,22 +90,20 @@ describe('Localforage Observable', function() {
 
         it('should stop observing after unsubscribing', function() {
             return runTestScenario()
-                .then(function() {
-                    subscription.unsubscribe();
-                    return localforage.setItem(
-                        'notObservedKey',
-                        'notObservedValue',
-                    );
-                })
-                .then(function() {
-                    return localforage.clear();
-                })
+                .then(() => subscription.unsubscribe())
+                .then(() =>
+                    localforage.setItem('notObservedKey', 'notObservedValue'),
+                )
+                .then(() => localforage.setItem('test1', 'notObservedValue'))
+                .then(() => localforage.removeItem('test1'))
+                .then(() => localforage.clear())
                 .then(function() {
                     m.chai.expect(observableLogs).to.deep.equal([
                         "setItem('test1', 'value1')",
                         "setItem('test2', 'value2')",
                         "setItem('test2', 'value2b')",
                         "setItem('test3', 'value3')",
+                        "removeItem('test3') => null",
                         // TODO: fix me
                         // 'clear()',
                     ]);
@@ -141,16 +139,7 @@ describe('Localforage Observable', function() {
 
         it('should observe properly', function() {
             return runTestScenario()
-                .then(function() {
-                    subscription.unsubscribe();
-                    return localforage.setItem(
-                        'notObservedKey',
-                        'notObservedValue',
-                    );
-                })
-                .then(function() {
-                    return localforage.clear();
-                })
+                .then(() => subscription.unsubscribe())
                 .then(function() {
                     m.chai
                         .expect(observableLogs)
@@ -160,6 +149,36 @@ describe('Localforage Observable', function() {
                             "setItem('test2', 'value2b')",
                             "setItem('test2', 'value2b')",
                             "setItem('test3', 'value3')",
+                            "removeItem('test3') => null",
+                            "removeItem('test3') => null",
+                            'clear()',
+                            'clear()',
+                        ]);
+                    m.chai.expect(errorCallCount).to.equal(0);
+                    m.chai.expect(completeCallCount).to.equal(0);
+                });
+        });
+
+        it('should stop observing after unsubscribing', function() {
+            return runTestScenario()
+                .then(() => subscription.unsubscribe())
+                .then(() =>
+                    localforage.setItem('notObservedKey', 'notObservedValue'),
+                )
+                .then(() => localforage.setItem('test1', 'notObservedValue'))
+                .then(() => localforage.removeItem('test1'))
+                .then(() => localforage.clear())
+                .then(function() {
+                    m.chai
+                        .expect(observableLogs)
+                        .to.deep.equal([
+                            "setItem('test1', 'value1')",
+                            "setItem('test2', 'value2')",
+                            "setItem('test2', 'value2b')",
+                            "setItem('test2', 'value2b')",
+                            "setItem('test3', 'value3')",
+                            "removeItem('test3') => null",
+                            "removeItem('test3') => null",
                             'clear()',
                             'clear()',
                         ]);
