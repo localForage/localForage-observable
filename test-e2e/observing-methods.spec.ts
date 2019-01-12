@@ -4,6 +4,7 @@ import * as localforage from 'localforage';
 import '../../';
 
 import { formatChangeArg } from './utils/formatChangeArg';
+const { expect } = m.chai;
 
 describe('Observing methods', function() {
     let setItemSubscription: Subscription;
@@ -99,23 +100,20 @@ describe('Observing methods', function() {
                     return localforage.clear();
                 })
                 .then(function() {
-                    m.chai
-                        .expect(setItemObservableLogs)
-                        .to.deep.equal([
-                            `setItem('UserProfile', '{"UserName":"user1","Password":"12345"}')`,
-                            `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
-                            `setItem('test1', 'value1')`,
-                            `setItem('test2', 'value2')`,
-                            `setItem('test2', 'value2b')`,
-                            `setItem('test3', 'value3')`,
-                        ]);
-                    m.chai
-                        .expect(clearObservableLogs)
+                    expect(setItemObservableLogs).to.deep.equal([
+                        `setItem('UserProfile', '{"UserName":"user1","Password":"12345"}')`,
+                        `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
+                        `setItem('test1', 'value1')`,
+                        `setItem('test2', 'value2')`,
+                        `setItem('test2', 'value2b')`,
+                        `setItem('test3', 'value3')`,
+                    ]);
+                    expect(clearObservableLogs)
                         // TODO: Fix this
                         // .to.deep.equal(['clear()']);
                         .to.deep.equal([]);
-                    m.chai.expect(errorCallCount).to.equal(0);
-                    m.chai.expect(completeCallCount).to.equal(0);
+                    expect(errorCallCount).to.equal(0);
+                    expect(completeCallCount).to.equal(0);
                 });
         });
     });
@@ -170,23 +168,22 @@ describe('Observing methods', function() {
                     return localforage.clear();
                 })
                 .then(function() {
-                    m.chai
-                        .expect(setItemObservableLogs)
-                        .to.deep.equal([
-                            `setItem('UserProfile', '{"UserName":"user1","Password":"12345"}')`,
-                            `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
-                            `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
-                            `setItem('test1', 'value1')`,
-                            `setItem('test2', 'value2')`,
-                            `setItem('test2', 'value2b')`,
-                            `setItem('test2', 'value2b')`,
-                            `setItem('test3', 'value3')`,
-                        ]);
-                    m.chai
-                        .expect(clearObservableLogs)
-                        .to.deep.equal(['clear()', 'clear()']);
-                    m.chai.expect(errorCallCount).to.equal(0);
-                    m.chai.expect(completeCallCount).to.equal(0);
+                    expect(setItemObservableLogs).to.deep.equal([
+                        `setItem('UserProfile', '{"UserName":"user1","Password":"12345"}')`,
+                        `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
+                        `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
+                        `setItem('test1', 'value1')`,
+                        `setItem('test2', 'value2')`,
+                        `setItem('test2', 'value2b')`,
+                        `setItem('test2', 'value2b')`,
+                        `setItem('test3', 'value3')`,
+                    ]);
+                    expect(clearObservableLogs).to.deep.equal([
+                        'clear()',
+                        'clear()',
+                    ]);
+                    expect(errorCallCount).to.equal(0);
+                    expect(completeCallCount).to.equal(0);
                 });
         });
     });

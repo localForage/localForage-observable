@@ -4,22 +4,22 @@ import * as localforage from 'localforage';
 import '../../';
 
 import { formatChangeArg } from './utils/formatChangeArg';
+const { expect } = m.chai;
 
 describe('Localforage', function() {
     it('should get ready', function() {
-        return m.chai.expect(localforage.ready()).to.eventually.be.fulfilled;
+        return expect(localforage.ready()).to.eventually.be.fulfilled;
     });
 });
 
 describe('Localforage Observable API', function() {
     it('should add the newObservable() method to localforage', function() {
-        m.chai.expect(localforage.newObservable).to.be.a('function');
+        expect(localforage.newObservable).to.be.a('function');
     });
 
     it('should be able to create a new observable', function() {
-        m.chai.expect(() => localforage.newObservable()).to.not.throw();
-        m.chai
-            .expect(localforage.newObservable())
+        expect(() => localforage.newObservable()).to.not.throw();
+        expect(localforage.newObservable())
             .to.have.property('subscribe')
             .that.is.a('function');
     });
@@ -74,7 +74,7 @@ describe('Localforage Observable', function() {
             return runTestScenario()
                 .then(() => subscription.unsubscribe())
                 .then(function() {
-                    m.chai.expect(observableLogs).to.deep.equal([
+                    expect(observableLogs).to.deep.equal([
                         "setItem('test1', 'value1')",
                         "setItem('test2', 'value2')",
                         "setItem('test2', 'value2b')",
@@ -83,8 +83,8 @@ describe('Localforage Observable', function() {
                         // TODO: fix me
                         // 'clear()',
                     ]);
-                    m.chai.expect(errorCallCount).to.equal(0);
-                    m.chai.expect(completeCallCount).to.equal(0);
+                    expect(errorCallCount).to.equal(0);
+                    expect(completeCallCount).to.equal(0);
                 });
         });
 
@@ -98,7 +98,7 @@ describe('Localforage Observable', function() {
                 .then(() => localforage.removeItem('test1'))
                 .then(() => localforage.clear())
                 .then(function() {
-                    m.chai.expect(observableLogs).to.deep.equal([
+                    expect(observableLogs).to.deep.equal([
                         "setItem('test1', 'value1')",
                         "setItem('test2', 'value2')",
                         "setItem('test2', 'value2b')",
@@ -107,8 +107,8 @@ describe('Localforage Observable', function() {
                         // TODO: fix me
                         // 'clear()',
                     ]);
-                    m.chai.expect(errorCallCount).to.equal(0);
-                    m.chai.expect(completeCallCount).to.equal(0);
+                    expect(errorCallCount).to.equal(0);
+                    expect(completeCallCount).to.equal(0);
                 });
         });
     });
@@ -141,21 +141,19 @@ describe('Localforage Observable', function() {
             return runTestScenario()
                 .then(() => subscription.unsubscribe())
                 .then(function() {
-                    m.chai
-                        .expect(observableLogs)
-                        .to.deep.equal([
-                            "setItem('test1', 'value1')",
-                            "setItem('test2', 'value2')",
-                            "setItem('test2', 'value2b')",
-                            "setItem('test2', 'value2b')",
-                            "setItem('test3', 'value3')",
-                            "removeItem('test3') => null",
-                            "removeItem('test3') => null",
-                            'clear()',
-                            'clear()',
-                        ]);
-                    m.chai.expect(errorCallCount).to.equal(0);
-                    m.chai.expect(completeCallCount).to.equal(0);
+                    expect(observableLogs).to.deep.equal([
+                        "setItem('test1', 'value1')",
+                        "setItem('test2', 'value2')",
+                        "setItem('test2', 'value2b')",
+                        "setItem('test2', 'value2b')",
+                        "setItem('test3', 'value3')",
+                        "removeItem('test3') => null",
+                        "removeItem('test3') => null",
+                        'clear()',
+                        'clear()',
+                    ]);
+                    expect(errorCallCount).to.equal(0);
+                    expect(completeCallCount).to.equal(0);
                 });
         });
 
@@ -169,21 +167,19 @@ describe('Localforage Observable', function() {
                 .then(() => localforage.removeItem('test1'))
                 .then(() => localforage.clear())
                 .then(function() {
-                    m.chai
-                        .expect(observableLogs)
-                        .to.deep.equal([
-                            "setItem('test1', 'value1')",
-                            "setItem('test2', 'value2')",
-                            "setItem('test2', 'value2b')",
-                            "setItem('test2', 'value2b')",
-                            "setItem('test3', 'value3')",
-                            "removeItem('test3') => null",
-                            "removeItem('test3') => null",
-                            'clear()',
-                            'clear()',
-                        ]);
-                    m.chai.expect(errorCallCount).to.equal(0);
-                    m.chai.expect(completeCallCount).to.equal(0);
+                    expect(observableLogs).to.deep.equal([
+                        "setItem('test1', 'value1')",
+                        "setItem('test2', 'value2')",
+                        "setItem('test2', 'value2b')",
+                        "setItem('test2', 'value2b')",
+                        "setItem('test3', 'value3')",
+                        "removeItem('test3') => null",
+                        "removeItem('test3') => null",
+                        'clear()',
+                        'clear()',
+                    ]);
+                    expect(errorCallCount).to.equal(0);
+                    expect(completeCallCount).to.equal(0);
                 });
         });
     });
