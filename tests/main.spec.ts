@@ -1,7 +1,7 @@
 import * as m from 'mochainon';
 
 import * as localforage from 'localforage';
-import '../../';
+import '../';
 
 import { formatChangeArg } from './utils/formatChangeArg';
 const { expect } = m.chai;

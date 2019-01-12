@@ -15,9 +15,8 @@
     "prettify": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\" \"test-e2e/**/*.ts\" \"karma.conf.ts\"",
     "build:umd": "rollup -c rollup.config.umd.js",
     "build:es6": "rollup -c rollup.config.es6.js",
-    "build:e2e": "tsc -p ./test-e2e/",
     "build": "npm run clean && npm run build:umd && npm run build:es6",
-    "test:e2e": "npm run build:e2e && karma start",
+    "test:e2e": "karma start",
     "test:typings": "node_modules/.bin/tsc --project typing-tests",
     "test:all": "npm run test:e2e && npm run test:typings",
     "test": "npm run build && npm run test:all",
@@ -63,7 +62,7 @@
     "zen-observable": "^0.2.1"
   },
   "lint-staged": {
-    "{lib,test,test-e2e}/**/*.ts": [
+    "{lib,tests,typing-tests,typings}/**/*.ts": [
       "prettier --write",
       "tslint -t stylish --fix",
       "git add"

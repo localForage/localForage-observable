@@ -1,7 +1,7 @@
 import * as m from 'mochainon';
 
 import * as localforage from 'localforage';
-import '../../';
+import '../';
 
 const { expect } = m.chai;
 

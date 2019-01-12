@@ -1,19 +1,22 @@
 import * as m from 'mochainon';
 
 import * as localforage from 'localforage';
-import '../../';
+import '../';
 
 import { formatChangeArg } from './utils/formatChangeArg';
 const { expect } = m.chai;
 
-describe('Observing keys', function() {
-    let subscription: Subscription;
-    let observableLogs: string[];
+describe('Observing methods', function() {
+    let setItemSubscription: Subscription;
+    let clearSubscription: Subscription;
+    let setItemObservableLogs: string[];
+    let clearObservableLogs: string[];
     let errorCallCount: number;
     let completeCallCount: number;
 
     beforeEach(function() {
-        observableLogs = [];
+        setItemObservableLogs = [];
+        clearObservableLogs = [];
         errorCallCount = 0;
         completeCallCount = 0;
     });
@@ -49,18 +52,35 @@ describe('Observing keys', function() {
             // this should not notify subscribers w/ changeDetection
             .then(() => localforage.clear());
 
-    describe('Given a simple observable & subscription w/ changeDetection', function() {
+    describe('Given a setItem & a clear observable & subscription w/ changeDetection', function() {
         beforeEach(function() {
             return localforage
                 .ready()
                 .then(() => localforage.clear())
                 .then(() => {
-                    const observable = localforage.newObservable({
-                        key: 'UserProfile',
+                    const setItemCallObservable = localforage.newObservable({
+                        setItem: true,
                     });
-                    subscription = observable.subscribe({
+
+                    setItemSubscription = setItemCallObservable.subscribe({
                         next: (change: LocalForageObservableChange) =>
-                            observableLogs.push(formatChangeArg(change)),
+                            setItemObservableLogs.push(formatChangeArg(change)),
+                        error: err => {
+                            errorCallCount++;
+                            console.error('Found an error!', err);
+                        },
+                        complete: () => {
+                            completeCallCount++;
+                        },
+                    });
+
+                    const clearCallObservable = localforage.newObservable({
+                        clear: true,
+                    });
+
+                    clearSubscription = clearCallObservable.subscribe({
+                        next: (change: LocalForageObservableChange) =>
+                            clearObservableLogs.push(formatChangeArg(change)),
                         error: err => {
                             errorCallCount++;
                             console.error('Found an error!', err);
@@ -75,41 +95,60 @@ describe('Observing keys', function() {
         it('should observe properly', function() {
             return runTestScenario()
                 .then(function() {
-                    subscription.unsubscribe();
-                    return localforage.setItem(
-                        'notObservedKey',
-                        'notObservedValue',
-                    );
-                })
-                .then(function() {
+                    setItemSubscription.unsubscribe();
+                    clearSubscription.unsubscribe();
                     return localforage.clear();
                 })
                 .then(function() {
-                    expect(observableLogs).to.deep.equal([
+                    expect(setItemObservableLogs).to.deep.equal([
                         `setItem('UserProfile', '{"UserName":"user1","Password":"12345"}')`,
                         `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
-                        // TODO: fix me
-                        // 'clear()',
+                        `setItem('test1', 'value1')`,
+                        `setItem('test2', 'value2')`,
+                        `setItem('test2', 'value2b')`,
+                        `setItem('test3', 'value3')`,
                     ]);
+                    expect(clearObservableLogs)
+                        // TODO: Fix this
+                        // .to.deep.equal(['clear()']);
+                        .to.deep.equal([]);
                     expect(errorCallCount).to.equal(0);
                     expect(completeCallCount).to.equal(0);
                 });
         });
     });
 
-    describe('Given a simple observable & subscription w/o changeDetection', function() {
+    describe('Given a setItem & a clear observable & subscription w/o changeDetection', function() {
         beforeEach(function() {
             return localforage
                 .ready()
                 .then(() => localforage.clear())
                 .then(() => {
-                    const observable = localforage.newObservable({
-                        key: 'UserProfile',
+                    const setItemCallObservable = localforage.newObservable({
+                        setItem: true,
                         changeDetection: false,
                     });
-                    subscription = observable.subscribe({
+
+                    setItemSubscription = setItemCallObservable.subscribe({
                         next: (change: LocalForageObservableChange) =>
-                            observableLogs.push(formatChangeArg(change)),
+                            setItemObservableLogs.push(formatChangeArg(change)),
+                        error: err => {
+                            errorCallCount++;
+                            console.error('Found an error!', err);
+                        },
+                        complete: () => {
+                            completeCallCount++;
+                        },
+                    });
+
+                    const clearCallObservable = localforage.newObservable({
+                        clear: true,
+                        changeDetection: false,
+                    });
+
+                    clearSubscription = clearCallObservable.subscribe({
+                        next: (change: LocalForageObservableChange) =>
+                            clearObservableLogs.push(formatChangeArg(change)),
                         error: err => {
                             errorCallCount++;
                             console.error('Found an error!', err);
@@ -124,22 +163,24 @@ describe('Observing keys', function() {
         it('should observe properly', function() {
             return runTestScenario()
                 .then(function() {
-                    subscription.unsubscribe();
-                    return localforage.setItem(
-                        'notObservedKey',
-                        'notObservedValue',
-                    );
-                })
-                .then(function() {
+                    setItemSubscription.unsubscribe();
+                    clearSubscription.unsubscribe();
                     return localforage.clear();
                 })
                 .then(function() {
-                    expect(observableLogs).to.deep.equal([
+                    expect(setItemObservableLogs).to.deep.equal([
                         `setItem('UserProfile', '{"UserName":"user1","Password":"12345"}')`,
                         `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
                         `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
-                        // TODO: fix me
-                        // 'clear()',
+                        `setItem('test1', 'value1')`,
+                        `setItem('test2', 'value2')`,
+                        `setItem('test2', 'value2b')`,
+                        `setItem('test2', 'value2b')`,
+                        `setItem('test3', 'value3')`,
+                    ]);
+                    expect(clearObservableLogs).to.deep.equal([
+                        'clear()',
+                        'clear()',
                     ]);
                     expect(errorCallCount).to.equal(0);
                     expect(completeCallCount).to.equal(0);

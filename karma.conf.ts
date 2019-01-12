@@ -25,7 +25,7 @@ module.exports = config => {
         LF_BROWSER_BUNDLE,
         ZEN_OBSERVABLE_BROWSER_BUNDLE,
         BROWSER_BUNDLE,
-        'build/test-e2e/**/*.spec.js',
+        'tests/**/*.spec.ts',
     ];
     config.set(karmaConfig);
 };
