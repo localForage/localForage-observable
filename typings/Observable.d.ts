@@ -1,5 +1,4 @@
 declare class Observable<T> {
-
     constructor(subscriber: SubscriberFunction<T>);
 
     // Subscribes to the sequence
@@ -19,11 +18,9 @@ declare class Observable<T> {
 
     // // Subclassing support
     // static get [Symbol.species](): Constructor;
-
 }
 
 interface Subscription {
-
     // Cancels the subscription
     unsubscribe(): void;
 }
@@ -35,9 +32,7 @@ interface SubscriberFunction<T> {
     (observer: SubscriptionObserver<T>): { (): void } | Subscription;
 }
 
-
 interface Observer<T> {
-
     // Receives the next value in the sequence
     next?: (value: T) => void;
 
@@ -49,7 +44,6 @@ interface Observer<T> {
 }
 
 interface SubscriptionObserver<T> {
-
     // Sends the next value in the sequence
     next(value: T): void;
 
