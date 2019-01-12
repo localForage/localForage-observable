@@ -1,5 +1,5 @@
 .rpt2_cache
 bower_components
 build
-components
+dist
 node_modules
