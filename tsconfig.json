@@ -9,7 +9,11 @@
     "removeComments": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/@resin.io"
+    ]
   },
   "include": [
     "lib/**/*.ts",
