@@ -32,7 +32,11 @@
 
         var useProfileSubscription = useProfileObservable.subscribe({
           next: function(args) {
-            observableLogs.push(JSON.stringify(args.newValue));
+            if (args.key) {
+              observableLogs.push(JSON.stringify(args.newValue));
+            } else {
+              observableLogs.push(`${args.methodName}()`);
+            }
             console.log(args.key + ' changed from ', args.oldValue, ' to ', args.newValue, ' using ' + args.methodName);
           }
         });
@@ -76,7 +80,8 @@
 
         var expectedLogs = [
           '{"UserName":"user1","Password":"12345"}',
-          '{"UserName":"user1","Password":"67890"}'
+          '{"UserName":"user1","Password":"67890"}',
+          'clear()'
         ];
 
         function checkExpectations() {
@@ -98,6 +103,20 @@
 
     <p>
       Check your console log.
+    </p>
+    <p>
+      Example list
+      <ul>
+        <li><a href="cross-tab-change-detection.html">cross-tab-change-detection</a></li>
+        <li><a href="cross-tab-observation.html">cross-tab-observation</a></li>
+        <li><a href="getitemobservable.html">getitemobservable</a></li>
+        <li><a href="index.html">index</a></li>
+        <li><a href="no-change-detection.html">no-change-detection</a></li>
+        <li><a href="observing-keys.html">observing-keys</a></li>
+        <li><a href="observing-methods.html">observing-methods</a></li>
+        <li><a href="rerun.html">rerun</a></li>
+        <li><a href="rxjs-example.html">rxjs-example</a></li>
+      </ul>
     </p>
   </body>
 </html>
