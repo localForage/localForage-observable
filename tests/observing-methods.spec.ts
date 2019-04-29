@@ -108,10 +108,7 @@ describe('Observing methods', function() {
                         `setItem('test2', 'value2b')`,
                         `setItem('test3', 'value3')`,
                     ]);
-                    expect(clearObservableLogs)
-                        // TODO: Fix this
-                        // .to.deep.equal(['clear()']);
-                        .to.deep.equal([]);
+                    expect(clearObservableLogs).to.deep.equal(['clear()']);
                     expect(errorCallCount).to.equal(0);
                     expect(completeCallCount).to.equal(0);
                 });

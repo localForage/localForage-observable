@@ -88,8 +88,7 @@ describe('Observing keys', function() {
                     expect(observableLogs).to.deep.equal([
                         `setItem('UserProfile', '{"UserName":"user1","Password":"12345"}')`,
                         `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
-                        // TODO: fix me
-                        // 'clear()',
+                        'clear()',
                     ]);
                     expect(errorCallCount).to.equal(0);
                     expect(completeCallCount).to.equal(0);
@@ -138,8 +137,8 @@ describe('Observing keys', function() {
                         `setItem('UserProfile', '{"UserName":"user1","Password":"12345"}')`,
                         `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
                         `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
-                        // TODO: fix me
-                        // 'clear()',
+                        'clear()',
+                        'clear()',
                     ]);
                     expect(errorCallCount).to.equal(0);
                     expect(completeCallCount).to.equal(0);

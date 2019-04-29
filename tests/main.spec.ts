@@ -80,8 +80,7 @@ describe('Localforage Observable', function() {
                         "setItem('test2', 'value2b')",
                         "setItem('test3', 'value3')",
                         "removeItem('test3') => null",
-                        // TODO: fix me
-                        // 'clear()',
+                        'clear()',
                     ]);
                     expect(errorCallCount).to.equal(0);
                     expect(completeCallCount).to.equal(0);
@@ -104,8 +103,7 @@ describe('Localforage Observable', function() {
                         "setItem('test2', 'value2b')",
                         "setItem('test3', 'value3')",
                         "removeItem('test3') => null",
-                        // TODO: fix me
-                        // 'clear()',
+                        'clear()',
                     ]);
                     expect(errorCallCount).to.equal(0);
                     expect(completeCallCount).to.equal(0);
