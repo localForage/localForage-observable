@@ -1,5 +1,6 @@
 import localforage from 'localforage';
-import { processObserverList } from './facades';
+import { processObserverList, setOldValues } from './facades';
+import { LocalForageObservableChangeWithPrivateProps } from './LocalForageObservableChangeWithPrivateProps';
 import { LocalForageObservableWrapper } from './LocalForageObservableWrapper';
 import { LocalForageWithObservablePrivateProps } from './LocalForageWithObservablePrivateProps';
 import { ObservableLibraryMethods } from './ObservableLibraryMethods';
@@ -12,32 +13,29 @@ function handleMethodCall(
     args: IArguments,
 ) {
     return localforageInstance.ready().then(function() {
-        const changeArgs = {
-            key: args[0],
-            methodName,
-            oldValue: null,
-            newValue: null,
-        } as LocalForageObservableChange;
-
-        if (methodName === 'setItem' && args[1] !== undefined) {
-            changeArgs.newValue = args[1];
-        }
-
         // if change detection is enabled to at least one active observable
         // and an applicable method is called then we should retrieve the old value
         const detectChanges =
-            (methodName === 'setItem' || methodName === 'removeItem') &&
+            ObservableLibraryMethods.indexOf(methodName) >= 0 &&
             (!!localforageInstance._observables.changeDetection.length ||
                 !!localforageInstance._observables.crossTabChangeDetection);
 
-        const getOldValuePromise = detectChanges
-            ? localforageInstance.getItem(changeArgs.key).then(function(value) {
-                  changeArgs.oldValue = value;
-                  // don't return anything
-              })
-            : Promise.resolve();
+        const key = args[0];
+        const newValue =
+            methodName === 'setItem' && args[1] !== undefined ? args[1] : null;
 
-        const promise = getOldValuePromise.then(function() {
+        const changeArgs: LocalForageObservableChangeWithPrivateProps = {
+            key,
+            methodName,
+            oldValue: null,
+            newValue,
+        };
+
+        const promise = setOldValues(
+            localforageInstance,
+            detectChanges,
+            changeArgs,
+        ).then(function() {
             return localforageInstance._baseMethods[methodName].apply(
                 localforageInstance,
                 args,
@@ -57,7 +55,8 @@ function handleMethodCall(
             .then(function() {
                 changeArgs.valueChange =
                     detectChanges &&
-                    !isEqual(changeArgs.oldValue, changeArgs.newValue);
+                    (!isEqual(changeArgs.oldValue, changeArgs.newValue) ||
+                        !!changeArgs._affectedItemsByKey);
                 if (changeArgs.valueChange) {
                     processObserverList(
                         localforageInstance._observables.changeDetection,
@@ -68,12 +67,10 @@ function handleMethodCall(
                     localforageInstance._observables.callDetection,
                     changeArgs,
                 );
-            })
-            .then(function() {
-                if (localforageInstance._observables.crossTabObserver) {
-                    localforageInstance._observables.crossTabObserver.publish(
-                        changeArgs,
-                    );
+
+                const { crossTabObserver } = localforageInstance._observables;
+                if (crossTabObserver) {
+                    crossTabObserver.publish(changeArgs);
                 }
             });
 

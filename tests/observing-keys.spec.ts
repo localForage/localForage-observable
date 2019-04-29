@@ -1,9 +1,10 @@
 import * as m from 'mochainon';
 
 import * as localforage from 'localforage';
-import '../../';
+import '../';
 
 import { formatChangeArg } from './utils/formatChangeArg';
+const { expect } = m.chai;
 
 describe('Observing keys', function() {
     let subscription: Subscription;
@@ -84,14 +85,13 @@ describe('Observing keys', function() {
                     return localforage.clear();
                 })
                 .then(function() {
-                    m.chai.expect(observableLogs).to.deep.equal([
+                    expect(observableLogs).to.deep.equal([
                         `setItem('UserProfile', '{"UserName":"user1","Password":"12345"}')`,
                         `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
-                        // TODO: fix me
-                        // 'clear()',
+                        'clear()',
                     ]);
-                    m.chai.expect(errorCallCount).to.equal(0);
-                    m.chai.expect(completeCallCount).to.equal(0);
+                    expect(errorCallCount).to.equal(0);
+                    expect(completeCallCount).to.equal(0);
                 });
         });
     });
@@ -133,15 +133,15 @@ describe('Observing keys', function() {
                     return localforage.clear();
                 })
                 .then(function() {
-                    m.chai.expect(observableLogs).to.deep.equal([
+                    expect(observableLogs).to.deep.equal([
                         `setItem('UserProfile', '{"UserName":"user1","Password":"12345"}')`,
                         `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
                         `setItem('UserProfile', '{"UserName":"user1","Password":"67890"}')`,
-                        // TODO: fix me
-                        // 'clear()',
+                        'clear()',
+                        'clear()',
                     ]);
-                    m.chai.expect(errorCallCount).to.equal(0);
-                    m.chai.expect(completeCallCount).to.equal(0);
+                    expect(errorCallCount).to.equal(0);
+                    expect(completeCallCount).to.equal(0);
                 });
         });
     });

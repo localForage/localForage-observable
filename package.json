@@ -12,16 +12,13 @@
     "lint-fix": "tslint --fix -t stylish -c tslint.json '{lib,test,test-e2e}/**/*.ts' 'karma.conf.ts'",
     "prebuild": "npm run prettify && npm run lint-fix",
     "precommit": "lint-staged",
-    "prettify": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\" \"test-e2e/**/*.ts\" \"karma.conf.ts\"",
+    "prettify": "prettier --write \"lib/**/*.ts\" \"tests/**/*.ts\" \"typing-tests/**/*.ts\" \"typings/**/*.ts\" \"karma.conf.ts\"",
     "build:umd": "rollup -c rollup.config.umd.js",
     "build:es6": "rollup -c rollup.config.es6.js",
-    "build:e2e": "tsc -p ./test-e2e/",
-    "build:unit": "rollup -c rollup.config.test.js",
     "build": "npm run clean && npm run build:umd && npm run build:es6",
-    "test:unit": "npm run build:unit && mocha build/test/test-bundle.js",
-    "test:e2e": "npm run build:e2e && karma start",
+    "test:e2e": "karma start",
     "test:typings": "node_modules/.bin/tsc --project typing-tests",
-    "test:all": "npm run test:unit && npm run test:e2e && npm run test:typings",
+    "test:all": "npm run test:e2e && npm run test:typings",
     "test": "npm run build && npm run test:all",
     "prepublish": "npm test"
   },
@@ -65,9 +62,13 @@
     "zen-observable": "^0.2.1"
   },
   "lint-staged": {
-    "{lib,test,test-e2e}/**/*.ts": [
+    "{lib,tests}/**/*.ts": [
       "prettier --write",
       "tslint -t stylish --fix",
+      "git add"
+    ],
+    "{typing-tests,typings}/**/*.ts": [
+      "prettier --write",
       "git add"
     ],
     "karma.conf.ts": [

@@ -11,7 +11,8 @@ interface LocalForageObservableMethodOptions {
     clear?: boolean;
 }
 
-interface LocalForageObservableOptions extends LocalForageObservableMethodOptions {
+interface LocalForageObservableOptions
+    extends LocalForageObservableMethodOptions {
     key?: string;
     changeDetection?: boolean; // default true
     crossTabNotification?: boolean; // default false

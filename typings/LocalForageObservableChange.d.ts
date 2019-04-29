@@ -15,6 +15,6 @@ interface LocalForageObservableChange {
     valueChange?: boolean;
     success?: boolean;
     fail?: boolean;
-    error: any;
+    error?: any;
     crossTabNotification?: string;
 }

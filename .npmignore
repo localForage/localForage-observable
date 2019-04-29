@@ -1,0 +1,11 @@
+.prettierrc
+.rpt2_cache/
+.travis.yml
+build/
+examples/
+karma.conf.ts
+rollup.config.es6.js
+rollup.config.umd.js
+tests/
+tslint.json
+typing-tests/

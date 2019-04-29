@@ -1,19 +1,20 @@
 import * as m from 'mochainon';
 
 import * as localforage from 'localforage';
-import '../../';
+import '../';
+
+const { expect } = m.chai;
 
 describe('getItemObservable()', function() {
     it('should add the getItemObservable() method to localforage', function() {
-        m.chai.expect(localforage.getItemObservable).to.be.a('function');
+        expect(localforage.getItemObservable).to.be.a('function');
     });
 
     it('should be able to create a new observable', function() {
-        m.chai
-            .expect(() => localforage.getItemObservable('UserProfile'))
-            .to.not.throw();
-        m.chai
-            .expect(localforage.getItemObservable('UserProfile'))
+        expect(() =>
+            localforage.getItemObservable('UserProfile'),
+        ).to.not.throw();
+        expect(localforage.getItemObservable('UserProfile'))
             .to.have.property('subscribe')
             .that.is.a('function');
     });
@@ -112,16 +113,14 @@ describe('getItemObservable()', function() {
                     return localforage.clear();
                 })
                 .then(function() {
-                    m.chai
-                        .expect(observableLogs)
-                        .to.deep.equal([
-                            '{"UserName":"user1","Password":"0000"}',
-                            '{"UserName":"user1","Password":"12345"}',
-                            '{"UserName":"user1","Password":"67890"}',
-                            '{"UserName":"user1","Password":"67891"}',
-                        ]);
-                    m.chai.expect(errorCallCount).to.equal(0);
-                    m.chai.expect(completeCallCount).to.equal(0);
+                    expect(observableLogs).to.deep.equal([
+                        '{"UserName":"user1","Password":"0000"}',
+                        '{"UserName":"user1","Password":"12345"}',
+                        '{"UserName":"user1","Password":"67890"}',
+                        '{"UserName":"user1","Password":"67891"}',
+                    ]);
+                    expect(errorCallCount).to.equal(0);
+                    expect(completeCallCount).to.equal(0);
                 });
         });
     });

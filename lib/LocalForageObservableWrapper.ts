@@ -1,3 +1,4 @@
+import { LocalForageObservableChangeWithPrivateProps } from './LocalForageObservableChangeWithPrivateProps';
 import { ObservableLibraryMethods } from './ObservableLibraryMethods';
 
 export class LocalForageObservableWrapper {
@@ -17,6 +18,51 @@ export class LocalForageObservableWrapper {
         return false;
     }
 
+    shouldNotifyAboutMethodCall(
+        methodName: keyof LocalForageObservableMethodOptions,
+    ) {
+        return (
+            !this.options ||
+            !!this.options[methodName] ||
+            // if it doesn't have any specific method set
+            // it applies to all of them
+            !this.hasMethodFilterOptions()
+        );
+    }
+
+    shouldNotifyAboutKey(key: string) {
+        return !this.options || !this.options.key || this.options.key === key;
+    }
+
+    shouldNotifyAboutAffectedKey(
+        changeArgs: LocalForageObservableChangeWithPrivateProps,
+    ) {
+        if (!this.options || !this.options.key) {
+            return true;
+        }
+
+        if (this.options.key === changeArgs.key) {
+            return true;
+        }
+
+        // if it affects all keys
+        if (changeArgs.methodName === 'clear') {
+            if (!this.options.changeDetection) {
+                return true;
+            }
+
+            if (changeArgs._affectedItemsByKey) {
+                const affectedItem =
+                    changeArgs._affectedItemsByKey[this.options.key];
+                if (affectedItem && this.options.key === affectedItem.key) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     publish(publishObject: LocalForageObservableChange) {
         if (
             publishObject.success &&
@@ -27,7 +73,10 @@ export class LocalForageObservableWrapper {
             } catch (e) {
                 /* */
             }
-        } else if (
+            return;
+        }
+
+        if (
             publishObject.fail &&
             typeof this.subscriptionObserver.error === 'function'
         ) {
@@ -36,6 +85,7 @@ export class LocalForageObservableWrapper {
             } catch (e) {
                 /* */
             }
+            return;
         }
     }
 }
