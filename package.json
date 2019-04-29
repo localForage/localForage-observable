@@ -20,7 +20,7 @@
     "test:typings": "node_modules/.bin/tsc --project typing-tests",
     "test:all": "npm run test:e2e && npm run test:typings",
     "test": "npm run build && npm run test:all",
-    "prepublish": "npm test"
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
