@@ -70,7 +70,12 @@ export default class StorageEventObserver {
             return;
         }
         try {
-            const payload = JSON.parse(e.newValue);
+            const payload = JSON.parse(
+                e.newValue,
+            ) as LocalForageObservableChange & {
+                name: string;
+                storeName: string;
+            };
             if (!payload) {
                 return;
             }
