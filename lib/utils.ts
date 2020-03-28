@@ -25,6 +25,7 @@ export function getDriverPromise(
     );
     return getDriverPromiseResult[driverName];
 }
+const toString = Object.prototype.toString;
 
 // thanks AngularJS
 function isDate(value: any) {
