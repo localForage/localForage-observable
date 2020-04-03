@@ -1,6 +1,6 @@
 {
   "name": "localforage-observable",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Adds observable method to localForage.",
   "homepage": "https://github.com/thgreasi/localForage-observable",
   "main": "dist/localforage-observable.js",
