@@ -18,9 +18,7 @@ namespace LocalForageObservableTest {
     }
 
     {
-        let observable: Observable<
-            LocalForageObservableChange
-        > = localforage.newObservable();
+        let observable: Observable<LocalForageObservableChange> = localforage.newObservable();
 
         let subscription: Subscription = observable.subscribe({
             next: (value: LocalForageObservableChange) => {},
@@ -35,18 +33,18 @@ namespace LocalForageObservableTest {
             key: 'UserProfile',
         };
 
-        let useProfileObservable: Observable<
-            LocalForageObservableChange
-        > = localforage.newObservable(newObservableOptions);
+        let useProfileObservable: Observable<LocalForageObservableChange> = localforage.newObservable(
+            newObservableOptions,
+        );
     }
 
     {
-        let methodCallObservable: Observable<
-            LocalForageObservableChange
-        > = localforage.newObservable({
-            setItem: true,
-            changeDetection: false,
-        });
+        let methodCallObservable: Observable<LocalForageObservableChange> = localforage.newObservable(
+            {
+                setItem: true,
+                changeDetection: false,
+            },
+        );
     }
 
     {
@@ -55,11 +53,11 @@ namespace LocalForageObservableTest {
             crossTabChangeDetection: true,
         });
 
-        let observable: Observable<
-            LocalForageObservableChange
-        > = localforage.newObservable({
-            crossTabNotification: true,
-        });
+        let observable: Observable<LocalForageObservableChange> = localforage.newObservable(
+            {
+                crossTabNotification: true,
+            },
+        );
     }
 
     {

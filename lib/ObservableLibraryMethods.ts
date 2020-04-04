@@ -1,6 +1,4 @@
-export const ObservableLibraryMethods: Array<
-    keyof LocalForageObservableMethodOptions
-> = [
+export const ObservableLibraryMethods: Array<keyof LocalForageObservableMethodOptions> = [
     'clear',
     // 'getItem',
     // 'iterate',
