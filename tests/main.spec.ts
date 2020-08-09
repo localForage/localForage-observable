@@ -1,10 +1,9 @@
-import * as m from 'mochainon';
+import { expect } from './utils/chai';
 
 import * as localforage from 'localforage';
 import '../';
 
 import { formatChangeArg } from './utils/formatChangeArg';
-const { expect } = m.chai;
 
 describe('Localforage', function() {
     it('should get ready', function() {
