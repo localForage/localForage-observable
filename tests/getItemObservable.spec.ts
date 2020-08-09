@@ -1,9 +1,7 @@
-import * as m from 'mochainon';
+import { expect } from './utils/chai';
 
 import * as localforage from 'localforage';
 import '../';
-
-const { expect } = m.chai;
 
 describe('getItemObservable()', function() {
     it('should add the getItemObservable() method to localforage', function() {

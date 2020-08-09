@@ -1,7 +1,7 @@
 /* tslint:disable:no-var-requires */
 const path = require('path');
 const packageJSON = require('./package.json');
-const getKarmaConfig = require('resin-config-karma');
+const getKarmaConfig = require('balena-config-karma');
 
 const LF_MODULE_PATH = './node_modules/localforage';
 const LF_BROWSER_BUNDLE = path.join(
