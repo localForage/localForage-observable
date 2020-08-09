@@ -87,8 +87,9 @@ function wireUpMethods(
     ) {
         localforageInstance._baseMethods =
             localforageInstance._baseMethods || {};
-        localforageInstance._baseMethods[methodName] =
-            localforageInstance[methodName];
+        localforageInstance._baseMethods[methodName] = localforageInstance[
+            methodName
+        ] as any;
         localforageInstance[methodName] = function() {
             return handleMethodCall(this, methodName, arguments);
         };
@@ -178,7 +179,7 @@ newObservable.factory = function<T>(subscribeFn: SubscriberFunction<T>) {
     return new Observable<T>(subscribeFn);
 };
 
-export function getItemObservable(
+export function getItemObservable<T>(
     this: LocalForageWithObservablePrivateProps,
     key: string,
     options: LocalForageObservableOptions,
@@ -188,9 +189,9 @@ export function getItemObservable(
     options = options || {};
     options.key = key;
 
-    const observable = newObservable.factory(function(observer) {
+    const observable = newObservable.factory<T | null>(function(observer) {
         const getItemSettled = localforageInstance
-            .getItem(key)
+            .getItem<T>(key)
             .then(value => {
                 observer.next(value);
             })

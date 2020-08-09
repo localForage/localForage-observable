@@ -9,7 +9,7 @@ interface LocalForageNewObservableFunc {
         options?: LocalForageObservableOptions,
     ): Observable<LocalForageObservableChange>;
 
-    factory<T>(subscribeFn: SubscriberFunction<T>): Observable<T>;
+    factory<T>(subscribeFn: SubscriberFunction<T>): Observable<T | null>;
 }
 
 interface ILocalForageWithObservableMethods {
@@ -18,7 +18,7 @@ interface ILocalForageWithObservableMethods {
     getItemObservable<T>(
         key: string,
         options?: LocalForageObservableOptions,
-    ): Observable<T>;
+    ): Observable<T | null>;
 
     configObservables(options: LocalForageObservableOptions): void;
 }
