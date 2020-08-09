@@ -7,11 +7,10 @@ export interface LocalForageWithObservablePrivateProps
         name: string;
         storeName: string;
     };
-    _baseMethods: {
-        setItem: <T>(key: string, value: T) => Promise<T>;
-        removeItem: (key: string) => Promise<void>;
-        clear: () => Promise<void>;
-    };
+    _baseMethods: Pick<
+        LocalForageWithObservableMethods,
+        'setItem' | 'removeItem' | 'clear'
+    >;
     _observables: {
         changeDetection: LocalForageObservableWrapper[];
         callDetection: LocalForageObservableWrapper[];
